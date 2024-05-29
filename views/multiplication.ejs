@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Math Tutor Game</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async
+            src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js">
+    </script>
+<style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f8ff;
+        }
+
+        .card {
+            border: 1px solid black;
+            padding-right: 20px;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            padding-left: 0px; /* Remove left padding */
+            background-color: lightblue;
+            margin-top: 20px;
+        }
+
+        .card-bottom {
+            padding: 10px;
+            /*border-top: 1px solid #000; !* Black border *!*/
+            margin-top: 10px;
+        }
+
+        /* Add this style for the answer input */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            width: 50px;
+            height: 30px;
+            -webkit-appearance: textfield; /* for Chrome */
+            -moz-appearance: textfield; /* for Firefox */
+            appearance: textfield;
+        }
+
+        .correct {
+            color: green;
+            font-size: 2em;
+        }
+
+        .incorrect {
+            color: red;
+            font-size: 2em;
+        }
+
+        .problem-statement {
+            background-color: #1f7688; /* Light blue */
+            width: 100%;
+            padding: 10px;
+        }
+
+        #pickleman {
+            position: fixed;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+
+        #ball {
+            position: fixed;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+        @keyframes moveBall {
+            0% { left: 0; }
+            100% { left: 100%; }
+        }
+        .moving {
+            animation: moveBall 2s linear forwards;
+        }
+        @keyframes bounceBall {
+            0% { top: 50%; left: 0; }
+            25% { top: 30%; left: 25%; }
+            50% { top: 50%; left: 50%; }
+            75% { top: 30%; left: 75%; }
+            100% { top: 50%; left: 100%; }
+        }
+        .bouncing {
+            animation: bounceBall 2s linear forwards;
+        }
+
+        #groundDiv {
+            background-color: #653203;
+            position: absolute;
+            top: calc(+82px + 50vh);
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50vh;
+            z-index: -1; /* This will place the div behind all other elements */
+        }
+
+    </style>
+</head>
+<body>
+<h1>Welcome to the Math Tutor Game!</h1>
+<br><br>
+
+<div class="card">
+    <span> Timer: <span id="timer"></span> </span>
+
+    <div class="problem-statement">
+        <strong><p>Solve the following problem:</p></strong>
+    </div>
+
+    <div class="card-bottom">
+        <form id="answerForm" method="post">
+            <h1><strong>
+                    <span id="problem"><%= problem %> = ?</span>
+                    <input type="text" id="answer" name="answer" required maxlength="15" autofocus autocomplete="off">
+                    <input type="submit" value="GO">
+                </strong></h1>
+        </form>
+        <audio id="yaySound" src="/sounds/yay.mp3" preload="auto"></audio>
+
+        <p id="oldProblem"></p>
+
+        <!-- Resay answer to reinforce problem. -->
+        <p id="result"></p>
+    </div>
+
+    <div class="card-bottom">
+        <br>
+        <p>Correct answers: <span id="correctCount"><%= counters.correct %></span> / <span
+                    id="totalCount"><%= counters.total %></span></p>
+        <p>Score: <span id="grade"></span></p>
+    </div>
+
+</div>
+
+<div id="pickleman">
+    <img src="/images/pickleball_guy.png" alt="Pickleman" width="200">
+</div>
+
+<div id="ball">
+    <img src="/images/ball.png" alt="Ball" width="40">
+</div>
+
+<div id="groundDiv"></div>
+
+<script>
+  // On page load, setup form handler and timer.
+  $(document).ready(function () {
+    // Set up the form submit event handler.
+    $('#answerForm').on('submit', handleFormSubmit);
+
+    // Set up the timer.
+    var duration = <%= timer %>; // Use the timer value passed from the server
+    var display = $('#timer');
+    startTimer(duration, display);
+
+    // Listen for the animationend event
+    // $('#ball').on('animationend', function() {
+    //   $(this).removeClass('moving');
+    // });
+
+    // Listen for the animationend event
+    $('#ball').on('animationend', function() {
+      $(this).removeClass('bouncing');
+    });
+  });
+
+  // On form submit, send an AJAX request to the server with answer.
+  function handleFormSubmit(e) {
+    e.preventDefault();
+
+    $.ajax({
+      url: '<%=answerUrl %>',
+      method: 'POST',
+      data: $(this).serialize(),
+      success: updateAndGetNextProblem // call to method to handle.
+    });
+  }
+
+  // Update the page with the old problem answer, and get new problem.
+  function updateAndGetNextProblem(data) {
+    $('#result').text(data.result).removeClass().addClass(data.result.toLowerCase());
+    $('#correctCount').text(data.counters.correct);
+    $('#totalCount').text(data.counters.total);
+    $('#grade').text(Math.round(data.grade) + '%');
+
+    // Clear the answer field
+    $('#answer').val('');
+
+    // Write the old problem, correct answer, and player's answer to #oldProblem
+    $('#oldProblem').text('Old problem: ' + $('#problem').text() + ' = ' + data.correctAnswer + ', Your answer: ' + data.userAnswer);
+
+    // // Add the moving class to the ball
+    // $('#ball').addClass('moving');
+    // Add the bouncing class to the ball
+    $('#ball').addClass('bouncing');
+
+    // If the answer is correct, play the yay sound 20% of the time
+    if (data.result === 'Correct' && Math.random() < 0.2) {
+      document.getElementById('yaySound').play();
+    }
+
+    // Make another AJAX request to get a new problem.
+    $.ajax({
+      url: '<%= nextProblemUrl %>',
+      method: 'GET',
+      success: function (data) {
+        $('#problem').text(data.problem + ' = ?');
+      }
+    });
+  }
+
+  // Setup initial timer and teh interval countdown.
+  function startTimer(duration, display) {
+    if (duration <= 0) {
+      $('#timer').parent().hide(); // Hide the parent element of the timer span
+      return;
+    }
+
+    var timeLeft = duration;
+    var timerId = setInterval(function () {
+      timeLeft--;
+
+      var minutes = Math.floor(timeLeft / 60);
+      var seconds = timeLeft % 60;
+
+      // Add leading zeros if necessary
+      minutes = minutes < 10 ? '0' + minutes : minutes;
+      seconds = seconds < 10 ? '0' + seconds : seconds;
+      display.text(minutes + ':' + seconds);
+
+      // When timer runs out, disable problem.
+      if (timeLeft <= 0) {
+        clearInterval(timerId);
+
+        // Disable the answer box and submit button
+        $('#answer').prop('disabled', true);
+        $('#answerForm input[type="submit"]').prop('disabled', true);
+
+        alert('Time is up!');
+      }
+    }, 1000);
+  }
+
+</script>
+
+
+<button id="resetButton">Reset Counters</button>
+
+
+<!--<p>-->
+<!--    When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are-->
+<!--    \[x = {-b \pm \sqrt{b^2-4ac} \over 2a}.\]-->
+<!--</p>-->
+<!--<p>-->
+<!--    \[{b \over 2a}.\]-->
+<!--</p>-->
+
+
+<script>
+  $(document).ready(function () {
+    // ... existing JavaScript ...
+
+    $('#resetButton').on('click', function () {
+      $.ajax({
+        url: '/reset',
+        method: 'POST',
+        success: function (data) {
+          $('#correctCount').text(0);
+          $('#totalCount').text(0);
+          $('#grade').text('0%');
+          alert(data.message);
+        }
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

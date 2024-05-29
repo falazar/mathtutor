@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Math Tutor Game</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        .link-button {
+            background: none;
+            border: none;
+            color: blue;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 1em;
+            font-family: serif;
+        }
+        .link-button:focus {
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+<h1>Welcome to the Math Tutor Game!</h1>
+<br>
+
+<form id="multiplicationForm" action="/multiplication" method="post">
+    <input type="hidden" name="timer" value="240">
+    <button type="submit" class="link-button">Multiplication Game - 4 minutes</button>
+</form>
+
+<form id="noTimerForm" action="/multiplication" method="post">
+    <button type="submit" class="link-button">Multiplication Game - Practice</button>
+</form>
+
+<form id="multiplicationFormLimits" action="/multiplication" method="post">
+    <input type="hidden" name="timer" value="240">
+    <input type="hidden" name="limitNumbers" value="1,2,3,4,5">
+    <button type="submit" class="link-button">Multiplication Game - 4 minutes - 1-5 numbers</button>
+</form>
+
+<form id="multiplicationFormLimits" action="/multiplication" method="post">
+    <input type="hidden" name="timer" value="240">
+    <input type="hidden" name="limitNumbers" value="6,7,8,9">
+    <button type="submit" class="link-button">Multiplication Game - 4 minutes - 6-9 numbers</button>
+</form>
+
+
+<hr>
+
+<br><br>
+
+<form id="fractionsForm" action="/multiplication_fractions" method="post">
+    <input type="hidden" name="timer" value="240">
+    <input type="hidden" name="limitNumbers" value="1,2,3,4,5">
+    <button type="submit" class="link-button">Fractions Game - 1-5 </button>
+</form>
+
+<form id="fractionsForm" action="/multiplication_fractions" method="post">
+    <input type="hidden" name="timer" value="240">
+    <button type="submit" class="link-button">Fractions Game</button>
+</form>
+
+</body>
+</html>

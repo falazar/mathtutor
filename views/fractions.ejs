@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Math Tutor Game - Fractions</title>
+</head>
+<body>
+    <h1>Welcome to the Fractions Tutor!</h1>
+    <p>Solve the following problem:</p>
+    <p id="problem"><%= problem %> = ?</p>
+    <form id="answerForm">
+        <input type="text" id="answer" required>
+        <input type="submit" value="Submit">
+    </form>
+    <p id="result"></p>
+    <script>
+        document.getElementById('answerForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var answer = document.getElementById('answer').value;
+            if (answer === '<%= solution %>') {
+                document.getElementById('result').textContent = 'Correct!';
+            } else {
+                document.getElementById('result').textContent = 'Incorrect. Try again.';
+            }
+        });
+    </script>
+</body>
+</html>

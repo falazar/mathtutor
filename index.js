@@ -1,0 +1,180 @@
+const express = require('express');
+const app = express();
+const path = require('path');
+const {generateMultiplicationProblem, generateMultiplicationFractionProblem} = require('./src/mathProblems');
+const session = require('express-session');
+
+app.use(session({
+  secret: 'your secret key',
+  resave: false,
+  saveUninitialized: true
+}));
+
+// Set up EJS view engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Set up body parsing middleware
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+
+// Set up static files directory
+app.use(express.static(path.join(__dirname, 'public')));
+// app.use('/public', express.static(path.join(__dirname, 'public')));
+
+// Set up body parsing middleware.
+const bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({extended: true}));
+
+app.get('/', function (req, res) {
+  res.render('index');
+});
+
+// Get starting multiplication problem.
+app.post('/multiplication', function (req, res) {
+  const limitNumbers = req.body.limitNumbers ? req.body.limitNumbers.split(',').map(Number) : []; // parse the numbers from the request body
+  const problem = generateMultiplicationProblem(limitNumbers);
+
+  Object.assign(req.session, {
+    limitNumbers,
+    problem: `${problem.num1} * ${problem.num2}`,
+    answer: problem.answer,
+    startTime: Date.now(), // Record the start time
+    counters: req.session.counters || {correct: 0, incorrect: 0, total: 0}, // Use existing counters or initialize if not present
+  });
+
+  const timer = req.body.timer || 0;
+  res.render('multiplication', {
+    problem: req.session.problem, counters: req.session.counters, timer, answerUrl: '/multiplication_answer',
+    nextProblemUrl: '/multiplication_next_problem'
+  });
+});
+
+// Call to get a new multiplication problem.
+app.get('/multiplication_next_problem', function (req, res) {
+  const problem = generateMultiplicationProblem(req.session.limitNumbers);
+
+  Object.assign(req.session, {
+    problem: `${problem.num1} * ${problem.num2}`,
+    answer: problem.answer,
+    startTime: Date.now(), // Record the start time
+  });
+
+  // Return a JSON object with the new problem only.
+  res.json({problem: req.session.problem});
+});
+
+// Checks answer for multiplication problem.
+app.post('/multiplication_answer', function (req, res) {
+  const userAnswer = parseInt(req.body.answer, 10);
+  const correctAnswer = req.session.answer;
+
+  let result;
+  if (userAnswer === correctAnswer) {
+    req.session.counters.correct++;
+    result = 'Correct';
+  } else {
+    req.session.counters.incorrect++;
+    result = 'Incorrect';
+  }
+  req.session.counters.total++;
+  const grade = req.session.counters.correct / req.session.counters.total * 100;
+
+  const timeTaken = Math.ceil((Date.now() - req.session.startTime) / 1000); // Calculate the time taken in seconds
+
+  // Log each question.
+  if (!req.session.logAnswers) {
+    req.session.logAnswers = [];
+  }
+  req.session.logAnswers.push({problem: req.session.problem, correctAnswer, userAnswer, result, timeTaken});
+  // console.log("DEBUG: Log answers = ", req.session.logAnswers);
+
+  res.json({
+    result,
+    correctAnswer,
+    userAnswer,
+    counters: req.session.counters,
+    grade
+  });
+});
+
+
+// Get starting multiplication fraction problem.
+app.post('/multiplication_fractions', function (req, res) {
+  const limitNumbers = req.body.limitNumbers ? req.body.limitNumbers.split(',').map(Number) : []; // parse the numbers from the request body
+  const problem = generateMultiplicationFractionProblem(limitNumbers);
+
+  Object.assign(req.session, {
+    limitNumbers,
+    problem: `${problem.num1} * ${problem.num2}`,
+    answer: problem.answer,
+    startTime: Date.now(), // Record the start time
+    counters: req.session.counters || {correct: 0, incorrect: 0, total: 0} // Use existing counters or initialize if not present
+  });
+
+  const timer = req.body.timer || 0;
+  res.render('multiplication', {
+    problem: req.session.problem, counters: req.session.counters, timer, answerUrl: '/multiplication_fraction_answer',
+    nextProblemUrl: '/multiplication_fraction_next_problem'
+  });
+});
+
+// Call to get a new multiplication fraction problem.
+app.get('/multiplication_fraction_next_problem', function (req, res) {
+  const problem = generateMultiplicationFractionProblem(req.session.limitNumbers);
+
+  Object.assign(req.session, {
+    problem: `${problem.num1} * ${problem.num2}`, // maybe move problem inside?
+    answer: problem.answer,
+    startTime: Date.now(), // Record the start time
+  });
+
+  // Return a JSON object with the new problem only.
+  res.json({problem: req.session.problem});
+});
+
+// Checks answer for multiplication fraction problem.
+app.post('/multiplication_fraction_answer', function (req, res) {
+  const userAnswer = req.body.answer;
+  const correctAnswer = req.session.answer;
+
+  let result;
+  if (userAnswer === correctAnswer) {
+    req.session.counters.correct++;
+    result = 'Correct';
+  } else {
+    req.session.counters.incorrect++;
+    result = 'Incorrect';
+  }
+  req.session.counters.total++;
+  const grade = req.session.counters.correct / req.session.counters.total * 100;
+
+  const timeTaken = Math.ceil((Date.now() - req.session.startTime) / 1000); // Calculate the time taken in seconds
+
+  // Log each question.
+  if (!req.session.logAnswers) {
+    req.session.logAnswers = [];
+  }
+  req.session.logAnswers.push({problem: req.session.problem, correctAnswer, userAnswer, result, timeTaken});
+  // console.log("DEBUG: Log answers = ", req.session.logAnswers);
+
+  res.json({
+    result,
+    correctAnswer,
+    userAnswer,
+    counters: req.session.counters,
+    grade
+  });
+});
+
+
+app.post('/reset', function (req, res) {
+  req.session.counters = {correct: 0, incorrect: 0, total: 0};
+  res.json({message: 'Counters reset successfully'});
+});
+app.listen(3000, function () {
+  console.log('App is listening on port 3000!');
+});
+
+
+
