@@ -51,6 +51,7 @@ app.post('/multiplication', function (req, res) {
 
   const timer = req.body.timer || 0;
   res.render('multiplication', {
+    title: req.body.title,
     problem: req.session.problem, counters: req.session.counters, timer, answerUrl: '/multiplication_answer',
     nextProblemUrl: '/multiplication_next_problem'
   });
@@ -121,6 +122,7 @@ app.post('/multiplication_fractions', function (req, res) {
 
   const timer = req.body.timer || 0;
   res.render('multiplication', {
+    title: req.body.title,
     problem: req.session.problem, counters: req.session.counters, timer, answerUrl: '/multiplication_fraction_answer',
     nextProblemUrl: '/multiplication_fraction_next_problem'
   });
@@ -193,6 +195,7 @@ app.post('/fractions_reducing', function (req, res) {
 
   const timer = req.body.timer || 0;
   res.render('multiplication', {
+    title: req.body.title,
     problem: req.session.problem,
     counters: req.session.counters,
     timer,

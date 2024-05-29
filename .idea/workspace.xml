@@ -5,9 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3ff17b53-81b7-48fa-8042-c8c728395c22" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/public/images/skyclouds.jpg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/mathProblems.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/mathProblems.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/views/index.ejs" beforeDir="false" afterPath="$PROJECT_DIR$/views/index.ejs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/views/multiplication.ejs" beforeDir="false" afterPath="$PROJECT_DIR$/views/multiplication.ejs" afterDir="false" />
     </list>
@@ -47,7 +47,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "false",
     "git-widget-placeholder": "master",
-    "last_opened_file_path": "C:/Users/james.ratcliff/IdeaProjects/mathtutor/public/sounds",
+    "last_opened_file_path": "C:/Users/james.ratcliff/IdeaProjects/mathtutor/public/images",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -58,8 +58,8 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\james.ratcliff\IdeaProjects\mathtutor\public\sounds" />
       <recent name="C:\Users\james.ratcliff\IdeaProjects\mathtutor\public\images" />
+      <recent name="C:\Users\james.ratcliff\IdeaProjects\mathtutor\public\sounds" />
       <recent name="C:\Users\james.ratcliff\IdeaProjects\mathtutor\views" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -74,7 +74,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1715982823058</updated>
-      <workItem from="1715982824183" duration="42314000" />
+      <workItem from="1715982824183" duration="44071000" />
     </task>
     <servers />
   </component>

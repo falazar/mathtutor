@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Math Tutor Game</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-    <script id="MathJax-script" async
-            src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js">
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js">
     </script>
     <!--    todo rename page it displays all problems really  -->
     <style>
@@ -119,6 +118,20 @@
             animation: bounceBall 2s linear forwards;
         }
 
+        #skyDiv {
+            background-color: #59b4f3;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: calc(50vh + 82px);
+            z-index: -1; /* This will place the div behind all other elements */
+            background-image: url('/images/skyclouds.jpg');
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
         #groundDiv {
             background-color: #653203;
             position: absolute;
@@ -138,7 +151,7 @@
 
 <div class="card">
     <div class="problem-statement">
-        <h2><%= title || '' %></h2>
+        <h2><%= locals.title || '' %></h2>
         <strong><p>Solve the following problem:</p></strong>
     </div>
 
@@ -178,6 +191,8 @@
 <div id="ball">
     <img src="/images/ball.png" alt="Ball" width="40">
 </div>
+
+<div id="skyDiv"></div>
 
 <div id="groundDiv"></div>
 
