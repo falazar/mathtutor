@@ -51,12 +51,48 @@
 <form id="fractionsForm" action="/multiplication_fractions" method="post">
     <input type="hidden" name="timer" value="240">
     <input type="hidden" name="limitNumbers" value="1,2,3,4,5">
-    <button type="submit" class="link-button">Fractions Game - 1-5 </button>
+    <button type="submit" class="link-button">Fractions Multiplication Game - 1-5 </button>
 </form>
 
 <form id="fractionsForm" action="/multiplication_fractions" method="post">
     <input type="hidden" name="timer" value="240">
-    <button type="submit" class="link-button">Fractions Game</button>
+    <button type="submit" class="link-button">Fractions Multiplication Game</button>
+</form>
+
+<!--TODO need to add instructions to problem more-->
+<form id="fractionsForm" action="/fractions_reducing" method="post">
+    <input type="hidden" name="timer" value="240">
+    <input type="hidden" name="limitNumbers" value="1,2,3">
+    <button type="submit" class="link-button">Fractions Reducing Game - smaller </button>
+</form>
+
+<!--todo pass a title thru each form also, to display. -->
+<form id="fractionsForm" action="/fractions_reducing" method="post">
+    <input type="hidden" name="timer" value="240">
+    <button type="submit" class="link-button">Fractions Reducing Game - larger </button>
+</form>
+
+<form id="gcdForm" action="/find_gcd" method="post">
+    <!--    todo title-->
+    <input type="hidden" name="title" value="Find GCD - Smaller">
+    <input type="hidden" name="timer" value="240">
+    <input type="hidden" name="limitNumbers" value="1,2,3,4">
+    <button type="submit" class="link-button">Find GCD - smaller </button>
+</form>
+
+<form id="gcdForm" action="/find_gcd" method="post">
+    <!--    todo title-->
+    <input type="hidden" name="title" value="Find GCD - Medium">
+    <input type="hidden" name="timer" value="240">
+    <input type="hidden" name="limitNumbers" value="1,2,3,4,5,6">
+    <button type="submit" class="link-button">Find GCD - medium </button>
+</form>
+
+<form id="gcdForm" action="/find_gcd" method="post">
+    <!--    todo title-->
+    <input type="hidden" name="title" value="Find GCD - Larger">
+    <input type="hidden" name="timer" value="240">
+    <button type="submit" class="link-button">Find GCD - larger </button>
 </form>
 
 </body>

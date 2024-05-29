@@ -1,7 +1,12 @@
 const express = require('express');
 const app = express();
 const path = require('path');
-const {generateMultiplicationProblem, generateMultiplicationFractionProblem} = require('./src/mathProblems');
+const {
+  generateMultiplicationProblem,
+  generateMultiplicationFractionProblem,
+  generateFractionReducingProblem,
+  generateFindGCDProblem
+} = require('./src/mathProblems');
 const session = require('express-session');
 
 app.use(session({
@@ -26,13 +31,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
 
+// MULTIPLICATION CHAPTER BEGIN
 app.get('/', function (req, res) {
   res.render('index');
 });
 
 // Get starting multiplication problem.
 app.post('/multiplication', function (req, res) {
-  const limitNumbers = req.body.limitNumbers ? req.body.limitNumbers.split(',').map(Number) : []; // parse the numbers from the request body
+  const limitNumbers = req.body.limitNumbers ? req.body.limitNumbers.split(',').map(Number) : ''; // parse the numbers from the request body
   const problem = generateMultiplicationProblem(limitNumbers);
 
   Object.assign(req.session, {
@@ -90,6 +96,7 @@ app.post('/multiplication_answer', function (req, res) {
   // console.log("DEBUG: Log answers = ", req.session.logAnswers);
 
   res.json({
+    oldProblem: req.session.problem,
     result,
     correctAnswer,
     userAnswer,
@@ -98,10 +105,10 @@ app.post('/multiplication_answer', function (req, res) {
   });
 });
 
-
+// FRACTIONS CHAPTER BEGIN
 // Get starting multiplication fraction problem.
 app.post('/multiplication_fractions', function (req, res) {
-  const limitNumbers = req.body.limitNumbers ? req.body.limitNumbers.split(',').map(Number) : []; // parse the numbers from the request body
+  const limitNumbers = req.body.limitNumbers ? req.body.limitNumbers.split(',').map(Number) : '';
   const problem = generateMultiplicationFractionProblem(limitNumbers);
 
   Object.assign(req.session, {
@@ -128,6 +135,7 @@ app.get('/multiplication_fraction_next_problem', function (req, res) {
     answer: problem.answer,
     startTime: Date.now(), // Record the start time
   });
+  console.log("DEBUG2: req.session.problem = ", req.session.problem);
 
   // Return a JSON object with the new problem only.
   res.json({problem: req.session.problem});
@@ -159,9 +167,170 @@ app.post('/multiplication_fraction_answer', function (req, res) {
   // console.log("DEBUG: Log answers = ", req.session.logAnswers);
 
   res.json({
+    oldProblem: req.session.problem,
     result,
     correctAnswer,
     userAnswer,
+    counters: req.session.counters,
+    grade
+  });
+});
+
+
+// Get starting fraction reducing problem.
+app.post('/fractions_reducing', function (req, res) {
+  const limitNumbers = req.body.limitNumbers ? req.body.limitNumbers.split(',').map(Number) : ''; // parse the numbers from the request body
+  const problem = generateFractionReducingProblem(limitNumbers);
+
+  Object.assign(req.session, {
+    limitNumbers,
+    problem: problem.problem,
+    answer: problem.answer,
+    explainer: problem.explainer,
+    startTime: Date.now(), // Record the start time
+    counters: req.session.counters || {correct: 0, incorrect: 0, total: 0} // Use existing counters or initialize if not present
+  });
+
+  const timer = req.body.timer || 0;
+  res.render('multiplication', {
+    problem: req.session.problem,
+    counters: req.session.counters,
+    timer,
+    answerUrl: '/fraction_reducing_answer',
+    nextProblemUrl: '/fraction_reducing_next_problem'
+  });
+});
+
+// Call to get a new multiplication fraction problem.
+app.get('/fraction_reducing_next_problem', function (req, res) {
+  const problem = generateFractionReducingProblem(req.session.limitNumbers);
+
+  Object.assign(req.session, {
+    problem: problem.problem,
+    answer: problem.answer,
+    explainer: problem.explainer,
+    startTime: Date.now(), // Record the start time
+  });
+
+  // Return a JSON object with the new problem only.
+  res.json({problem: req.session.problem});
+});
+
+// Checks answer for multiplication fraction problem.
+app.post('/fraction_reducing_answer', function (req, res) {
+  const userAnswer = req.body.answer;
+  const correctAnswer = req.session.answer;
+
+  // todo make method here?
+  let result;
+  if (userAnswer == correctAnswer) { // cast both.
+    req.session.counters.correct++;
+    result = 'Correct';
+  } else {
+    req.session.counters.incorrect++;
+    result = 'Incorrect';
+  }
+  console.log("DEBUG: result = ", result);
+  req.session.counters.total++;
+  const grade = req.session.counters.correct / req.session.counters.total * 100;
+
+  const timeTaken = Math.ceil((Date.now() - req.session.startTime) / 1000); // Calculate the time taken in seconds
+
+  // Log each question.
+  if (!req.session.logAnswers) {
+    req.session.logAnswers = [];
+  }
+  req.session.logAnswers.push({problem: req.session.problem, correctAnswer, userAnswer, result, timeTaken});
+  // todo same stuff to here, in method.
+
+  // console.log("DEBUG: Log answers = ", req.session.logAnswers);
+
+  res.json({
+    oldProblem: req.session.problem,
+    result,
+    correctAnswer,
+    userAnswer,
+    explainer: req.session.explainer,
+    counters: req.session.counters,
+    grade
+  });
+});
+
+
+// GCD CHAPTER BEING
+// Get start find GCD problem.
+app.post('/find_gcd', function (req, res) {
+  const limitNumbers = req.body.limitNumbers ? req.body.limitNumbers.split(',').map(Number) : ''; // parse the numbers from the request body
+  const problem = generateFindGCDProblem(limitNumbers);
+
+  Object.assign(req.session, {
+    limitNumbers,
+    problem: problem.problem,
+    answer: problem.answer,
+    explainer: problem.explainer,
+    startTime: Date.now(), // Record the start time
+    counters: req.session.counters || {correct: 0, incorrect: 0, total: 0} // Use existing counters or initialize if not present
+  });
+
+  const timer = req.body.timer || 0;
+  res.render('multiplication', {
+    title: req.body.title,
+    problem: req.session.problem,
+    counters: req.session.counters,
+    timer,
+    answerUrl: '/find_gcd_answer',
+    nextProblemUrl: '/find_gcd_next_problem'
+  });
+});
+
+// Call to get a new find gcd problem.
+app.get('/find_gcd_next_problem', function (req, res) {
+  const problem = generateFindGCDProblem(req.session.limitNumbers);
+
+  Object.assign(req.session, {
+    problem: problem.problem,
+    answer: problem.answer,
+    explainer: problem.explainer,
+    startTime: Date.now(), // Record the start time
+  });
+
+  // Return a JSON object with the new problem only.
+  res.json({problem: req.session.problem});
+});
+
+// Checks answer for multiplication fraction problem.
+app.post('/find_gcd_answer', function (req, res) {
+  const userAnswer = req.body.answer;
+  const correctAnswer = req.session.answer;
+
+  // todo make method here?
+  let result;
+  if (userAnswer == correctAnswer) { // cast both.
+    req.session.counters.correct++;
+    result = 'Correct';
+  } else {
+    req.session.counters.incorrect++;
+    result = 'Incorrect';
+  }
+  req.session.counters.total++;
+  const grade = req.session.counters.correct / req.session.counters.total * 100;
+
+  const timeTaken = Math.ceil((Date.now() - req.session.startTime) / 1000); // Calculate the time taken in seconds
+
+  // Log each question.
+  if (!req.session.logAnswers) {
+    req.session.logAnswers = [];
+  }
+  req.session.logAnswers.push({problem: req.session.problem, correctAnswer, userAnswer, result, timeTaken});
+  // todo same stuff to here, in method.
+
+
+  res.json({
+    oldProblem: req.session.problem,
+    result,
+    correctAnswer,
+    userAnswer,
+    explainer: req.session.explainer,
     counters: req.session.counters,
     grade
   });

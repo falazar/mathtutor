@@ -7,7 +7,8 @@
     <script id="MathJax-script" async
             src="https://cdn.jsdelivr.net/npm/mathjax@3.0.1/es5/tex-mml-chtml.js">
     </script>
-<style>
+    <!--    todo rename page it displays all problems really  -->
+    <style>
         body {
             display: flex;
             flex-direction: column;
@@ -19,7 +20,7 @@
         .card {
             border: 1px solid black;
             padding-right: 20px;
-            padding-top: 20px;
+            padding-top: 0px;
             padding-bottom: 20px;
             padding-left: 0px; /* Remove left padding */
             background-color: lightblue;
@@ -38,6 +39,7 @@
             -webkit-appearance: none;
             margin: 0;
         }
+
         input[type="number"] {
             width: 50px;
             height: 30px;
@@ -60,6 +62,7 @@
             background-color: #1f7688; /* Light blue */
             width: 100%;
             padding: 10px;
+            margin-top: 0;
         }
 
         #pickleman {
@@ -75,20 +78,43 @@
             left: 0;
             transform: translateY(-50%);
         }
+
         @keyframes moveBall {
-            0% { left: 0; }
-            100% { left: 100%; }
+            0% {
+                left: 0;
+            }
+            100% {
+                left: 100%;
+            }
         }
+
         .moving {
             animation: moveBall 2s linear forwards;
         }
+
         @keyframes bounceBall {
-            0% { top: 50%; left: 0; }
-            25% { top: 30%; left: 25%; }
-            50% { top: 50%; left: 50%; }
-            75% { top: 30%; left: 75%; }
-            100% { top: 50%; left: 100%; }
+            0% {
+                top: 50%;
+                left: 0;
+            }
+            25% {
+                top: 30%;
+                left: 25%;
+            }
+            50% {
+                top: 50%;
+                left: 50%;
+            }
+            75% {
+                top: 30%;
+                left: 75%;
+            }
+            100% {
+                top: 50%;
+                left: 100%;
+            }
         }
+
         .bouncing {
             animation: bounceBall 2s linear forwards;
         }
@@ -111,13 +137,14 @@
 <br><br>
 
 <div class="card">
-    <span> Timer: <span id="timer"></span> </span>
-
     <div class="problem-statement">
+        <h2><%= title || '' %></h2>
         <strong><p>Solve the following problem:</p></strong>
     </div>
 
     <div class="card-bottom">
+        <span> Timer: <span id="timer"></span> </span>
+
         <form id="answerForm" method="post">
             <h1><strong>
                     <span id="problem"><%= problem %> = ?</span>
@@ -127,10 +154,12 @@
         </form>
         <audio id="yaySound" src="/sounds/yay.mp3" preload="auto"></audio>
 
-        <p id="oldProblem"></p>
+        <p id="result"></p>
 
         <!-- Resay answer to reinforce problem. -->
-        <p id="result"></p>
+        <p id="oldProblem"></p>
+
+        <p id="explainer"></p>
     </div>
 
     <div class="card-bottom">
@@ -169,7 +198,7 @@
     // });
 
     // Listen for the animationend event
-    $('#ball').on('animationend', function() {
+    $('#ball').on('animationend', function () {
       $(this).removeClass('bouncing');
     });
   });
@@ -179,7 +208,7 @@
     e.preventDefault();
 
     $.ajax({
-      url: '<%=answerUrl %>',
+      url: '<%= answerUrl %>',
       method: 'POST',
       data: $(this).serialize(),
       success: updateAndGetNextProblem // call to method to handle.
@@ -188,6 +217,7 @@
 
   // Update the page with the old problem answer, and get new problem.
   function updateAndGetNextProblem(data) {
+    // Step 1: Check the answer and update page.
     $('#result').text(data.result).removeClass().addClass(data.result.toLowerCase());
     $('#correctCount').text(data.counters.correct);
     $('#totalCount').text(data.counters.total);
@@ -196,8 +226,18 @@
     // Clear the answer field
     $('#answer').val('');
 
-    // Write the old problem, correct answer, and player's answer to #oldProblem
-    $('#oldProblem').text('Old problem: ' + $('#problem').text() + ' = ' + data.correctAnswer + ', Your answer: ' + data.userAnswer);
+    // Write out the old problem, correct answer, and player's answer to #oldProblem
+    $('#oldProblem').text('Last problem: ' + data.oldProblem + ' = ' + data.correctAnswer + ', Your answer: ' + data.userAnswer);
+    MathJax.typeset(); // recall our mathjax formatting.
+
+    // Add in an explainer, if given.
+    if (data.explainer) {
+      $('#explainer').html('Explainer: ' + data.explainer);
+      MathJax.typeset(); // recall our mathjax formatting.
+    } else {
+      $('#explainer').html('');
+    }
+
 
     // // Add the moving class to the ball
     // $('#ball').addClass('moving');
@@ -209,12 +249,13 @@
       document.getElementById('yaySound').play();
     }
 
-    // Make another AJAX request to get a new problem.
+    // STEP 2: Make another AJAX request to get a new problem.
     $.ajax({
       url: '<%= nextProblemUrl %>',
       method: 'GET',
       success: function (data) {
         $('#problem').text(data.problem + ' = ?');
+        MathJax.typeset(); // recall our mathjax formatting.
       }
     });
   }
