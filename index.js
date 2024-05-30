@@ -15,6 +15,9 @@ app.use(session({
   saveUninitialized: true
 }));
 
+// Read our .env variables.
+require('dotenv').config();
+
 // Set up EJS view engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -31,9 +34,80 @@ app.use(express.static(path.join(__dirname, 'public')));
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
 
+
+const mysql = require('mysql');
+
+const db = mysql.createConnection({
+  host: 'mysql.falazar.com',
+  user: 'falazar',
+  password: process.env.DB_PASSWORD,
+  database: 'tutorbot'
+});
+
+db.connect((err) => {
+  if (err) {
+    throw err;
+  }
+  console.log('Connected to database');
+});
+
+// Hardcoded users for demonstration purposes
+const users = {
+  'lazarus': 'laz1',
+  'cyrus': 'cy1'
+};
+
+app.get('/login', function (req, res) {
+  res.render('login');
+});
+
+app.post('/login', (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
+
+  if (users[username] && users[username] === password) {
+    // Set the session variables
+    req.session.username = username;
+    req.session.firstName = 'John'; // Replace 'John' with the actual first name
+    console.log("DEBUG: req.session.username = ", req.session.username);
+
+    // Redirect to the index page
+    res.redirect('/');
+  } else {
+    res.send('Invalid username or password');
+  }
+});
+
+// Add this function to your index.js file
+function saveProblemsToDB(logAnswers, db) {
+  logAnswers.forEach((logAnswer) => {
+    // todo test.
+    const {problem, correctAnswer, userAnswer, result, timeTaken} = logAnswer;
+    // TODO maybe category too....
+    const runId = uuid.v4(); // Generate a new UUID for each set of problems
+
+    const query = 'INSERT INTO problems_tried (runId, title, problem, correctAnswer, userAnswer, result, timeTaken) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    db.query(query, [runId, title, problem, correctAnswer, userAnswer, result, timeTaken], (err, result) => {
+      if (err) {
+        throw err;
+      }
+      console.log('Problem saved to database');
+    });
+  });
+}
+
+// Add this route to your index.js file
+app.post('/saveProblems', function (req, res) {
+  const logAnswers = req.session.logAnswers;
+  saveProblemsToDB(logAnswers, db);
+  res.json({message: 'Problems saved successfully'});
+});
+
 // MULTIPLICATION CHAPTER BEGIN
 app.get('/', function (req, res) {
-  res.render('index');
+  res.render('index', {
+    username: req.session.username
+  });
 });
 
 // Get starting multiplication problem.
@@ -42,6 +116,7 @@ app.post('/multiplication', function (req, res) {
   const problem = generateMultiplicationProblem(limitNumbers);
 
   Object.assign(req.session, {
+    title: req.body.title,
     limitNumbers,
     problem: `${problem.num1} * ${problem.num2}`,
     answer: problem.answer,
@@ -113,6 +188,7 @@ app.post('/multiplication_fractions', function (req, res) {
   const problem = generateMultiplicationFractionProblem(limitNumbers);
 
   Object.assign(req.session, {
+    title: req.body.title,
     limitNumbers,
     problem: `${problem.num1} * ${problem.num2}`,
     answer: problem.answer,
@@ -185,6 +261,7 @@ app.post('/fractions_reducing', function (req, res) {
   const problem = generateFractionReducingProblem(limitNumbers);
 
   Object.assign(req.session, {
+    title: req.body.title,
     limitNumbers,
     problem: problem.problem,
     answer: problem.answer,
@@ -267,6 +344,7 @@ app.post('/find_gcd', function (req, res) {
   const problem = generateFindGCDProblem(limitNumbers);
 
   Object.assign(req.session, {
+    title: req.body.title,
     limitNumbers,
     problem: problem.problem,
     answer: problem.answer,

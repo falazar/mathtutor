@@ -44,9 +44,14 @@
         }
 
     </style>
+    <link rel="stylesheet" type="text/css" href="toolbar.css">
 </head>
 <body>
-<h1>Welcome to the Math Tutor Game!</h1>
+
+<%- include('toolbar.ejs') %>
+<div style="clear:both;"></div>
+
+<h1>Welcome, <%= username %>, to the Math Tutor Game!</h1>
 <br>
 
 
@@ -68,15 +73,22 @@
         <form id="multiplicationFormLimits" action="/multiplication" method="post">
             <input type="hidden" name="title" value="Multiplication Game - smaller">
             <input type="hidden" name="timer" value="240">
-            <input type="hidden" name="limitNumbers" value="1,2,3,4,5">
-            <button type="submit" class="link-button">Multiplication Game - 4 minutes - 1-5 numbers</button>
+            <input type="hidden" name="limitNumbers" value="1,2,3,4">
+            <button type="submit" class="link-button">Multiplication Game - 4 minutes - 1-4 numbers</button>
         </form>
 
         <form id="multiplicationFormLimits" action="/multiplication" method="post">
             <input type="hidden" name="title" value="Multiplication Game - larger">
             <input type="hidden" name="timer" value="240">
-            <input type="hidden" name="limitNumbers" value="6,7,8,9">
-            <button type="submit" class="link-button">Multiplication Game - 4 minutes - 6-9 numbers</button>
+            <input type="hidden" name="limitNumbers" value="5,6,7">
+            <button type="submit" class="link-button">Multiplication Game - 4 minutes - 5-7 numbers</button>
+        </form>
+
+        <form id="multiplicationFormLimits" action="/multiplication" method="post">
+            <input type="hidden" name="title" value="Multiplication Game - larger">
+            <input type="hidden" name="timer" value="240">
+            <input type="hidden" name="limitNumbers" value="5,6,7,8,9">
+            <button type="submit" class="link-button">Multiplication Game - 4 minutes - 5-9 numbers</button>
         </form>
     </div>
 </div>

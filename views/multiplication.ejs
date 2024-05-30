@@ -24,6 +24,7 @@
             padding-left: 0px; /* Remove left padding */
             background-color: lightblue;
             margin-top: 20px;
+            z-index: 10;
         }
 
         .card-bottom {
@@ -76,6 +77,7 @@
             top: 50%;
             left: 0;
             transform: translateY(-50%);
+            z-index: 5;
         }
 
         @keyframes moveBall {
@@ -144,8 +146,11 @@
         }
 
     </style>
+    <link rel="stylesheet" type="text/css" href="toolbar.css">
 </head>
 <body>
+<%- include('toolbar.ejs') %>
+
 <h1>Welcome to the Math Tutor Game!</h1>
 <br><br>
 
@@ -275,7 +280,7 @@
     });
   }
 
-  // Setup initial timer and teh interval countdown.
+  // Setup initial timer and the interval countdown.
   function startTimer(duration, display) {
     if (duration <= 0) {
       $('#timer').parent().hide(); // Hide the parent element of the timer span
@@ -286,26 +291,47 @@
     var timerId = setInterval(function () {
       timeLeft--;
 
-      var minutes = Math.floor(timeLeft / 60);
-      var seconds = timeLeft % 60;
-
-      // Add leading zeros if necessary
-      minutes = minutes < 10 ? '0' + minutes : minutes;
-      seconds = seconds < 10 ? '0' + seconds : seconds;
-      display.text(minutes + ':' + seconds);
+      displayTime(timeLeft, display);
 
       // When timer runs out, disable problem.
       if (timeLeft <= 0) {
-        clearInterval(timerId);
-
-        // Disable the answer box and submit button
-        $('#answer').prop('disabled', true);
-        $('#answerForm input[type="submit"]').prop('disabled', true);
-
-        alert('Time is up!');
+        handleTimerEnd(timerId);
       }
     }, 1000);
   }
+
+  // Function to format and display the timer.
+  function displayTime(timeLeft, display) {
+    var minutes = Math.floor(timeLeft / 60);
+    var seconds = timeLeft % 60;
+
+    // Add leading zeros if necessary
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    seconds = seconds < 10 ? '0' + seconds : seconds;
+    display.text(minutes + ':' + seconds);
+  }
+
+  // Function to handle the end of the timer
+  function handleTimerEnd(timerId) {
+    clearInterval(timerId);
+
+    // Disable the answer box and submit button
+    $('#answer').prop('disabled', true);
+    $('#answerForm input[type="submit"]').prop('disabled', true);
+
+    // Save problems and scores.
+    // Save problems and scores.
+    $.ajax({
+      url: '/saveProblems',
+      method: 'POST',
+      success: function (data) {
+        console.log(data.message);
+      }
+    });
+
+    alert('Time is up!');
+  }
+
 
 </script>
 

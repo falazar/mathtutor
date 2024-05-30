@@ -8,4 +8,6 @@ simple
 https://jsbin.com/?html,output
 todo test with fractions.
 
+TODO do a map of the world for countries and continents and such...
+
 

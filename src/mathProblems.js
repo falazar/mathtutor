@@ -149,13 +149,11 @@ function generateFindGCDProblem(limitNumbers) {
   if (num1 === num2) {
     num2 += 2;
   }
-  console.log(`DEBUG: num1: ${num1}, num2: ${num2}`);
 
-  // Multiple by a number to get a little bit larger...
+  // Multiply by a number to get a little bit larger...
   const numX = Math.floor(Math.random() * 5) + 1;
   num1 = num1 * numX;
   num2 = num2 * numX;
-  console.log(`DEBUG: num1: ${num1}, num2: ${num2}`);
 
 
   // STEP 3: Find the GCD of the two numbers.
