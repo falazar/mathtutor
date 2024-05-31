@@ -7,17 +7,19 @@ const {
   generateFractionReducingProblem,
   generateFindGCDProblem
 } = require('./src/mathProblems');
-const uuid = require('uuid');
 const session = require('express-session');
+
+// Read our .env variables.
+require('dotenv').config();
+
+// Connect to our db here. This is a global connection.
+const {db, saveProblemsToDB} = require('./db');
 
 app.use(session({
   secret: 'your secret key',
   resave: false,
   saveUninitialized: true
 }));
-
-// Read our .env variables.
-require('dotenv').config();
 
 // Set up EJS view engine
 app.set('view engine', 'ejs');
@@ -29,7 +31,6 @@ app.use(express.urlencoded({extended: true}));
 
 // Set up static files directory
 app.use(express.static(path.join(__dirname, 'public')));
-// app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // Set up body parsing middleware.
 const bodyParser = require('body-parser');
@@ -44,19 +45,6 @@ function checkUserSession(req, res, next) {
   }
 }
 
-const mysql = require('mysql');
-const db = mysql.createConnection({
-  host: 'mysql.falazar.com',
-  user: 'falazar',
-  password: process.env.DB_PASSWORD,
-  database: 'tutorbot'
-});
-db.connect((err) => {
-  if (err) {
-    throw err;
-  }
-  console.log('Connected to database');
-});
 
 // Hardcoded users for demonstration purposes
 const users = {
@@ -102,51 +90,6 @@ app.get('/logout', function (req, res) {
   });
 });
 
-// Add this function to your index.js file
-function saveProblemsToDB(req) {
-  const logAnswers = req.session.logAnswers;
-  const runId = uuid.v4(); // Generate a new UUID for each set of problems
-
-  // STEP 1: Save array of tries to db now.
-  // Create an array to hold the values for all problems
-  let values = [];
-  // Iterate over logAnswers and push the values for each problem into the array
-  logAnswers.forEach((logAnswer) => {
-    const {problem, correctAnswer, userAnswer, result, timeTaken} = logAnswer;
-    values.push([req.session.userId, runId, req.session.title, problem, correctAnswer, userAnswer, result, timeTaken]);
-  });
-  // Create a placeholder string for the query
-  let placeholders = values.map(() => '(?, ?, ?, ?, ?, ?, ?, ?)').join(',');
-  // Construct the query
-  let query = `INSERT INTO problems_tried (userId, runId, title, problem, correctAnswer, userAnswer, result, timeTaken)
-               VALUES ${placeholders}`;
-  // Flatten the values array
-  values = [].concat(...values);
-  // Execute the query
-  db.query(query, values, (err, result) => {
-    if (err) {
-      throw err;
-    }
-    console.log('Problems saved to database');
-  });
-
-  // STEP 2: Save the result set now.
-  const numQuestionsRight = logAnswers.filter(logAnswer => logAnswer.result === 'Correct').length;
-  const numQuestionsWrong = logAnswers.length - numQuestionsRight;
-  const grade = Math.round((numQuestionsRight / logAnswers.length) * 100);
-  query = `INSERT INTO problem_sets (runId, userId, title, grade, numQuestionsRight, numQuestionsWrong, datetime)
-           VALUES (?, ?, ?, ?, ?, ?, NOW())`;
-  values = [runId, req.session.userId, req.session.title, grade, numQuestionsRight, numQuestionsWrong];
-  db.query(query, values, (err, result) => {
-    if (err) {
-      throw err;
-    }
-    console.log('Problem set saved to database');
-  });
-
-}
-
-// Add this route to your index.js file
 app.post('/saveProblems', checkUserSession, function (req, res) {
   saveProblemsToDB(req);
   res.json({message: 'Problems saved successfully'});
@@ -168,7 +111,7 @@ app.post('/multiplication', checkUserSession, function (req, res) {
   });
 
   const timer = req.body.timer || 0;
-  res.render('multiplication', {
+  res.render('problem_view', {
     username: req.session.username,
     title: req.body.title,
     problem: req.session.problem, counters: req.session.counters, timer, answerUrl: '/multiplication_answer',
@@ -241,7 +184,7 @@ app.post('/multiplication_fractions', checkUserSession, function (req, res) {
   });
 
   const timer = req.body.timer || 0;
-  res.render('multiplication', {
+  res.render('problem_view', {
     username: req.session.username,
     title: req.body.title,
     problem: req.session.problem, counters: req.session.counters, timer, answerUrl: '/multiplication_fraction_answer',
@@ -316,7 +259,7 @@ app.post('/fractions_reducing', checkUserSession, function (req, res) {
   });
 
   const timer = req.body.timer || 0;
-  res.render('multiplication', {
+  res.render('problem_view', {
     username: req.session.username,
     title: req.body.title,
     problem: req.session.problem,
@@ -400,7 +343,7 @@ app.post('/find_gcd', checkUserSession, function (req, res) {
   });
 
   const timer = req.body.timer || 0;
-  res.render('multiplication', {
+  res.render('problem_view', {
     username: req.session.username,
     title: req.body.title,
     problem: req.session.problem,

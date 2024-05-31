@@ -1,13 +1,58 @@
 
+RANDOM:
 Animate an image here?
 What site animates an image?
 cant find free site to animate an image.
 
-Math display right here:
-simple
+DONE - Math display right here:
 https://jsbin.com/?html,output
-todo test with fractions.
 
-TODO do a map of the world for countries and continents and such...
+########################################################################
+DEVOPS:
+Hosting, can aonther site host node???
+
+########################################################################
+CATEGORIES:
+1. Map of the world for countries and continents and such...
+
+2. Add a non-math category of questions.
+Lets do some spanish, numbers 1-10 both ways.
+
+3. Cyrus had trouble with coins, can we do a section for that?
+Need to change view to show coins based on problems.
+
+########################################################################
+USER:
+Make full db login.
+Make full register page.
+
+########################################################################
+STYLING:
+Make the login page look better.
+Add a main css style file.
+
+########################################################################
+DATA:
+Update scores display pages.
+Allow multiple players to be seen.
+Allow manager view.
+
+########################################################################
+GAMIFY:
+score compute
+high scores list on right. 10 high scores.
+How can I add another level of games to the program.
+Water rising?
+Fish eating bigger fish?
+Attack a dragon?
+Block removal.
+Puzzle pieces.
+Maze?
+
+########################################################################
+REFACTORS:
+mysql code pull out.
+repeated code in index.js pull out.
+
 
 
