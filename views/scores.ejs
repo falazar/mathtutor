@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scores Page</title>
+    <link rel="stylesheet" type="text/css" href="toolbar.css">
+    <style>
+        body {
+            background-image: url('/images/skyclouds.jpg');
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        table {
+            border: 3px solid black;
+            border-radius: 5px;
+            border-radius: 5px;
+            border-collapse: collapse; /* Add this line */
+        }
+        /* Add this to style the table cells */
+        td, th {
+            border: 3px solid black;
+            padding: 3px;
+        }
+
+        .headerClass {
+            background-color: rgba(255, 255, 255, 0.5); /* white with 50% opacity */
+        }
+
+        .center-text {
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+<%- include('toolbar.ejs') %>
+<div style="clear:both;"></div>
+
+<!--todo break down by category and title later-->
+
+<!--todo show problems that need more work here. -->
+
+<h1>Scores for <%= username %></h1>
+<table>
+    <tr class="headerClass">
+        <th>Title</th>
+        <th>Grade</th>
+        <th>Correct Answers</th>
+        <th>Incorrect Answers</th>
+        <th>Date</th>
+    </tr>
+    <% scores.forEach(function(score) { %>
+    <tr>
+        <td><%= score.title %></td>
+        <td class="center-text"><%= score.grade %></td>
+        <td class="center-text"><%= score.numQuestionsRight %></td>
+        <td class="center-text"><%= score.numQuestionsWrong %></td>
+        <td><%= score.datetime.toLocaleDateString('en-US'); %></td>
+    </tr>
+    <% }); %>
+</table>
+</body>
+</html>

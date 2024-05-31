@@ -18,6 +18,7 @@
             outline: none;
         }
 
+        /*// todo move to a shared css*/
         body {
             background-image: url('/images/skyclouds.jpg');
             background-repeat: no-repeat;
@@ -51,7 +52,7 @@
 <%- include('toolbar.ejs') %>
 <div style="clear:both;"></div>
 
-<h1>Welcome, <%= username %>, to the Math Tutor Game!</h1>
+<h1>Welcome <%= username %>, to the Math Tutor Game!</h1>
 <br>
 
 
@@ -149,6 +150,16 @@
         </form>
     </div>
 </div>
+
+
+<form id="multiplicationFormLimits" action="/multiplication" method="post">
+    <input type="hidden" name="title" value="Multiplication Game - smaller">
+    <input type="hidden" name="timer" value="15">
+    <input type="hidden" name="limitNumbers" value="1,2,3,4">
+    <button type="submit" class="link-button">Test Game - 4 minutes - 1-4 numbers</button>
+</form>
+
+
 
 </body>
 </html>
