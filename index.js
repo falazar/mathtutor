@@ -1,19 +1,29 @@
 const express = require('express');
 const app = express();
 const path = require('path');
+
+// Import all lesson types.
 const {
   generateMultiplicationProblem,
   generateMultiplicationFractionProblem,
   generateFractionReducingProblem,
   generateFindGCDProblem
 } = require('./src/mathProblems');
+const {
+  generateSpanishNumbersToEnglishProblem,
+  generateSpanishNumbersToSpanishProblem
+} = require('./src/spanishProblems');
+const {
+  generateUSStateProblem
+} = require('./src/mapProblems');
+
 const session = require('express-session');
 
 // Read our .env variables.
 require('dotenv').config();
 
 // Connect to our db here. This is a global connection.
-const {db, saveProblemsToDB} = require('./db');
+const {db, saveProblemsToDB} = require('./src/db');
 
 app.use(session({
   secret: 'your secret key',
@@ -136,27 +146,7 @@ app.get('/multiplication_next_problem', checkUserSession, function (req, res) {
 // Checks answer for multiplication problem.
 app.post('/multiplication_answer', checkUserSession, function (req, res) {
   const userAnswer = parseInt(req.body.answer, 10);
-  const correctAnswer = req.session.answer;
-
-  let result;
-  if (userAnswer === correctAnswer) {
-    req.session.counters.correct++;
-    result = 'Correct';
-  } else {
-    req.session.counters.incorrect++;
-    result = 'Incorrect';
-  }
-  req.session.counters.total++;
-  const grade = req.session.counters.correct / req.session.counters.total * 100;
-
-  const timeTaken = Math.ceil((Date.now() - req.session.startTime) / 1000); // Calculate the time taken in seconds
-
-  // Log each question.
-  if (!req.session.logAnswers) {
-    req.session.logAnswers = [];
-  }
-  req.session.logAnswers.push({problem: req.session.problem, correctAnswer, userAnswer, result, timeTaken});
-  // console.log("DEBUG: Log answers = ", req.session.logAnswers);
+  const {result, correctAnswer, grade} = checkAnswerAndUpdateCounters(req, userAnswer);
 
   res.json({
     oldProblem: req.session.problem,
@@ -167,6 +157,31 @@ app.post('/multiplication_answer', checkUserSession, function (req, res) {
     grade
   });
 });
+
+// todo move to new home.
+// Given a request object and the user's answer, check the answer and update the counters.
+function checkAnswerAndUpdateCounters(req, userAnswer) {
+  const correctAnswer = req.session.answer;
+  let result;
+  if (userAnswer == correctAnswer) { // Type coerce to match.
+    req.session.counters.correct++;
+    result = 'Correct';
+  } else {
+    req.session.counters.incorrect++;
+    result = 'Incorrect';
+  }
+  req.session.counters.total++;
+  const grade = req.session.counters.correct / req.session.counters.total * 100;
+  const timeTaken = Math.ceil((Date.now() - req.session.startTime) / 1000); // Calculate the time taken in seconds
+
+  // Log each question.
+  if (!req.session.logAnswers) {
+    req.session.logAnswers = [];
+  }
+  req.session.logAnswers.push({problem: req.session.problem, correctAnswer, userAnswer, result, timeTaken});
+
+  return {result, correctAnswer, grade};
+}
 
 // FRACTIONS CHAPTER BEGIN
 // Get starting multiplication fraction problem.
@@ -210,27 +225,7 @@ app.get('/multiplication_fraction_next_problem', checkUserSession, function (req
 // Checks answer for multiplication fraction problem.
 app.post('/multiplication_fraction_answer', checkUserSession, function (req, res) {
   const userAnswer = req.body.answer;
-  const correctAnswer = req.session.answer;
-
-  let result;
-  if (userAnswer === correctAnswer) {
-    req.session.counters.correct++;
-    result = 'Correct';
-  } else {
-    req.session.counters.incorrect++;
-    result = 'Incorrect';
-  }
-  req.session.counters.total++;
-  const grade = req.session.counters.correct / req.session.counters.total * 100;
-
-  const timeTaken = Math.ceil((Date.now() - req.session.startTime) / 1000); // Calculate the time taken in seconds
-
-  // Log each question.
-  if (!req.session.logAnswers) {
-    req.session.logAnswers = [];
-  }
-  req.session.logAnswers.push({problem: req.session.problem, correctAnswer, userAnswer, result, timeTaken});
-  // console.log("DEBUG: Log answers = ", req.session.logAnswers);
+  const {result, correctAnswer, grade} = checkAnswerAndUpdateCounters(req, userAnswer);
 
   res.json({
     oldProblem: req.session.problem,
@@ -288,31 +283,7 @@ app.get('/fraction_reducing_next_problem', checkUserSession, function (req, res)
 // Checks answer for multiplication fraction problem.
 app.post('/fraction_reducing_answer', checkUserSession, function (req, res) {
   const userAnswer = req.body.answer;
-  const correctAnswer = req.session.answer;
-
-  // todo make method here?
-  let result;
-  if (userAnswer == correctAnswer) { // cast both.
-    req.session.counters.correct++;
-    result = 'Correct';
-  } else {
-    req.session.counters.incorrect++;
-    result = 'Incorrect';
-  }
-  console.log("DEBUG: result = ", result);
-  req.session.counters.total++;
-  const grade = req.session.counters.correct / req.session.counters.total * 100;
-
-  const timeTaken = Math.ceil((Date.now() - req.session.startTime) / 1000); // Calculate the time taken in seconds
-
-  // Log each question.
-  if (!req.session.logAnswers) {
-    req.session.logAnswers = [];
-  }
-  req.session.logAnswers.push({problem: req.session.problem, correctAnswer, userAnswer, result, timeTaken});
-  // todo same stuff to here, in method.
-
-  // console.log("DEBUG: Log answers = ", req.session.logAnswers);
+  const {result, correctAnswer, grade} = checkAnswerAndUpdateCounters(req, userAnswer);
 
   res.json({
     oldProblem: req.session.problem,
@@ -326,7 +297,7 @@ app.post('/fraction_reducing_answer', checkUserSession, function (req, res) {
 });
 
 
-// GCD CHAPTER BEING
+// GCD CHAPTER BEGIN.
 // Get start find GCD problem.
 app.post('/find_gcd', checkUserSession, function (req, res) {
   const limitNumbers = req.body.limitNumbers ? req.body.limitNumbers.split(',').map(Number) : ''; // parse the numbers from the request body
@@ -369,32 +340,132 @@ app.get('/find_gcd_next_problem', checkUserSession, function (req, res) {
   res.json({problem: req.session.problem});
 });
 
-// Checks answer for multiplication fraction problem.
+// Checks answer for gcd problem.
 app.post('/find_gcd_answer', checkUserSession, function (req, res) {
   const userAnswer = req.body.answer;
-  const correctAnswer = req.session.answer;
+  const {result, correctAnswer, grade} = checkAnswerAndUpdateCounters(req, userAnswer);
 
-  // todo make method here?
-  let result;
-  if (userAnswer == correctAnswer) { // cast both.
-    req.session.counters.correct++;
-    result = 'Correct';
-  } else {
-    req.session.counters.incorrect++;
-    result = 'Incorrect';
-  }
-  req.session.counters.total++;
-  const grade = req.session.counters.correct / req.session.counters.total * 100;
+  res.json({
+    oldProblem: req.session.problem,
+    result,
+    correctAnswer,
+    userAnswer,
+    explainer: req.session.explainer,
+    counters: req.session.counters,
+    grade
+  });
+});
 
-  const timeTaken = Math.ceil((Date.now() - req.session.startTime) / 1000); // Calculate the time taken in seconds
 
-  // Log each question.
-  if (!req.session.logAnswers) {
-    req.session.logAnswers = [];
-  }
-  req.session.logAnswers.push({problem: req.session.problem, correctAnswer, userAnswer, result, timeTaken});
-  // todo same stuff to here, in method.
+// SPANISH CHAPTER BEGIN.
+// TODO abstract this to handle more things? dunno.
+// Numbers 1-10 from spanish to english.
+app.post('/spanish_numbers_to_english', checkUserSession, function (req, res) {
+  const problem = generateSpanishNumbersToEnglishProblem();
+  console.log("DEBUG: problem = ", problem);
 
+  Object.assign(req.session, {
+    title: req.body.title,
+    problem: problem.problem,
+    answer: problem.answer,
+    // could add voice wav as another field here.
+    startTime: Date.now(), // Record the start time
+    counters: req.session.counters || {correct: 0, incorrect: 0, total: 0} // Use existing counters or initialize if not present
+  });
+
+  const timer = req.body.timer || 0;
+  res.render('problem_view', {
+    username: req.session.username,
+    title: req.body.title,
+    problem: req.session.problem,
+    counters: req.session.counters,
+    timer,
+    answerUrl: '/spanish_numbers_to_english_answer',
+    nextProblemUrl: '/spanish_numbers_to_english_next_problem'
+  });
+});
+
+// Call to get a new find spanish problem.
+app.get('/spanish_numbers_to_english_next_problem', checkUserSession, function (req, res) {
+  const problem = generateSpanishNumbersToEnglishProblem();
+
+  Object.assign(req.session, {
+    problem: problem.problem,
+    answer: problem.answer,
+    startTime: Date.now(), // Record the start time
+  });
+
+  // Return a JSON object with the new problem only.
+  res.json({problem: req.session.problem});
+});
+
+// Checks answer for spanish problem.
+app.post('/spanish_numbers_to_english_answer', checkUserSession, function (req, res) {
+  const userAnswer = req.body.answer;
+  const {result, correctAnswer, grade} = checkAnswerAndUpdateCounters(req, userAnswer);
+
+  console.log("DEBUG: correctAnswer = ", correctAnswer);
+  console.log("DEBUG: userAnswer = ", userAnswer);
+
+  res.json({
+    oldProblem: req.session.problem,
+    result,
+    correctAnswer,
+    userAnswer,
+    explainer: req.session.explainer,
+    counters: req.session.counters,
+    grade
+  });
+});
+
+
+// Numbers 1-10 from english to spanish.
+app.post('/spanish_numbers_to_spanish', checkUserSession, function (req, res) {
+  const problem = generateSpanishNumbersToSpanishProblem();
+  console.log("DEBUG: problem = ", problem);
+
+  Object.assign(req.session, {
+    title: req.body.title,
+    problem: problem.problem,
+    answer: problem.answer,
+    // could add voice wav as another field here.
+    startTime: Date.now(), // Record the start time
+    counters: req.session.counters || {correct: 0, incorrect: 0, total: 0} // Use existing counters or initialize if not present
+  });
+
+  const timer = req.body.timer || 0;
+  res.render('problem_view', {
+    username: req.session.username,
+    title: req.body.title,
+    problem: req.session.problem,
+    counters: req.session.counters,
+    timer,
+    answerUrl: '/spanish_numbers_to_spanish_answer',
+    nextProblemUrl: '/spanish_numbers_to_spanish_next_problem'
+  });
+});
+
+// Call to get a new find spanish problem.
+app.get('/spanish_numbers_to_spanish_next_problem', checkUserSession, function (req, res) {
+  const problem = generateSpanishNumbersToSpanishProblem();
+
+  Object.assign(req.session, {
+    problem: problem.problem,
+    answer: problem.answer,
+    startTime: Date.now(), // Record the start time
+  });
+
+  // Return a JSON object with the new problem only.
+  res.json({problem: req.session.problem});
+});
+
+// Checks answer for spanish problem.
+app.post('/spanish_numbers_to_spanish_answer', checkUserSession, function (req, res) {
+  const userAnswer = req.body.answer;
+  const {result, correctAnswer, grade} = checkAnswerAndUpdateCounters(req, userAnswer);
+
+  console.log("DEBUG: correctAnswer = ", correctAnswer);
+  console.log("DEBUG: userAnswer = ", userAnswer);
 
   res.json({
     oldProblem: req.session.problem,
@@ -415,8 +486,14 @@ app.post('/reset', checkUserSession, function (req, res) {
 
 // Show user page to see scores.
 app.get('/scores', checkUserSession, function (req, res) {
-  const query = 'SELECT * FROM problem_sets WHERE userId = ? ORDER BY datetime DESC';
-  db.query(query, [req.session.userId], (err, results) => {
+  // const query = 'SELECT * FROM problem_sets WHERE userId = ? ORDER BY datetime DESC';
+  // TODO write this query but join with users table to get username.
+  const query = 'SELECT * FROM problem_sets ' +
+    ' JOIN users ON problem_sets.userId = users.id '+
+    ' ORDER BY datetime DESC';
+
+  // db.query(query, [req.session.userId], (err, results) => {
+  db.query(query, (err, results) => {
     if (err) {
       throw err;
     }
@@ -427,6 +504,75 @@ app.get('/scores', checkUserSession, function (req, res) {
       });
   });
 });
+
+// TEST PAGE ONLY.
+app.get('/usa_map', checkUserSession, function (req, res) {
+  res.render('usa_map',
+    {
+      username: req.session.username,
+    });
+});
+
+// MAPS CHAPTER BEGIN.
+// TODO abstract this to handle more things? dunno.
+app.post('/us_states', checkUserSession, function (req, res) {
+  const problem = generateUSStateProblem();
+  console.log("DEBUG: problem = ", problem);
+
+  Object.assign(req.session, {
+    title: req.body.title,
+    problem: problem.problem,
+    answer: problem.answer,
+    startTime: Date.now(), // Record the start time
+    counters: req.session.counters || {correct: 0, incorrect: 0, total: 0} // Use existing counters or initialize if not present
+  });
+
+  const timer = req.body.timer || 0;
+  res.render('problem_view', {
+    username: req.session.username,
+    title: req.body.title,
+    problem: req.session.problem,
+    map: "usa_map.ejs",
+    counters: req.session.counters,
+    timer,
+    answerUrl: '/us_states_answer',
+    nextProblemUrl: '/us_states_next_problem'
+  });
+});
+
+// Call to get a new find state problem.
+app.get('/us_states_next_problem', checkUserSession, function (req, res) {
+  const problem = generateUSStateProblem();
+
+  Object.assign(req.session, {
+    problem: problem.problem,
+    answer: problem.answer,
+    startTime: Date.now(), // Record the start time
+  });
+
+  // Return a JSON object with the new problem only.
+  res.json({problem: req.session.problem});
+});
+
+// Checks answer for state problem.
+app.post('/us_states_answer', checkUserSession, function (req, res) {
+  const userAnswer = req.body.answer;
+  const {result, correctAnswer, grade} = checkAnswerAndUpdateCounters(req, userAnswer);
+
+  console.log("DEBUG: correctAnswer = ", correctAnswer);
+  console.log("DEBUG: userAnswer = ", userAnswer);
+
+  res.json({
+    oldProblem: req.session.problem,
+    result,
+    correctAnswer,
+    userAnswer,
+    explainer: req.session.explainer,
+    counters: req.session.counters,
+    grade
+  });
+});
+
 
 app.listen(3000, function () {
   console.log('App is listening on port 3000!');

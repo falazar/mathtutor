@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Math Tutor Game</title>
+    <title> TutorBot Games </title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <style>
         .link-button {
@@ -30,6 +30,7 @@
             border: 5px solid orange; /* Thick orange border */
             border-radius: 10px; /* Rounded borders */
             display: inline-block; /* Make the width equal to the content width */
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.4);
         }
 
         .section-bottom {
@@ -52,105 +53,159 @@
 <%- include('toolbar.ejs') %>
 <div style="clear:both;"></div>
 
-<h1>Welcome <%= username %>, to the Math Tutor Game!</h1>
+<h1>Welcome <%= username %>, to the TutorBot Game!</h1>
 <br>
 
+<table>
+    <tr style="vertical-align: top;">
+        <td style="padding-right: 20px;">
 
-<div class="section-div">
-    <div id="title-bar">Multiplication Problems</div>
+            <div class="section-div">
+                <div id="title-bar">Multiplication Problems</div>
 
-    <div class="section-bottom">
-        <form id="multiplicationForm" action="/multiplication" method="post">
-            <input type="hidden" name="title" value="Multiplication Game">
-            <input type="hidden" name="timer" value="240">
-            <button type="submit" class="link-button">Multiplication Game - 4 minutes</button>
-        </form>
+                <div class="section-bottom">
+                    <form id="multiplicationForm" action="/multiplication" method="post">
+                        <input type="hidden" name="title" value="Multiplication Game">
+                        <input type="hidden" name="timer" value="240">
+                        <button type="submit" class="link-button">Multiplication Game - 4 minutes</button>
+                    </form>
 
-        <form id="noTimerForm" action="/multiplication" method="post">
-            <input type="hidden" name="title" value="Multiplication Game">
-            <button type="submit" class="link-button">Multiplication Game - Practice</button>
-        </form>
+                    <form id="noTimerForm" action="/multiplication" method="post">
+                        <input type="hidden" name="title" value="Multiplication Game">
+                        <button type="submit" class="link-button">Multiplication Game - Practice</button>
+                    </form>
 
-        <form id="multiplicationFormLimits" action="/multiplication" method="post">
-            <input type="hidden" name="title" value="Multiplication Game - smaller">
-            <input type="hidden" name="timer" value="240">
-            <input type="hidden" name="limitNumbers" value="1,2,3,4">
-            <button type="submit" class="link-button">Multiplication Game - 4 minutes - 1-4 numbers</button>
-        </form>
+                    <form id="multiplicationFormLimits" action="/multiplication" method="post">
+                        <input type="hidden" name="title" value="Multiplication Game - smaller">
+                        <input type="hidden" name="timer" value="240">
+                        <input type="hidden" name="limitNumbers" value="1,2,3,4">
+                        <button type="submit" class="link-button">Multiplication Game - 4 minutes - 1-4 numbers</button>
+                    </form>
 
-        <form id="multiplicationFormLimits" action="/multiplication" method="post">
-            <input type="hidden" name="title" value="Multiplication Game - larger">
-            <input type="hidden" name="timer" value="240">
-            <input type="hidden" name="limitNumbers" value="5,6,7">
-            <button type="submit" class="link-button">Multiplication Game - 4 minutes - 5-7 numbers</button>
-        </form>
+                    <form id="multiplicationFormLimits" action="/multiplication" method="post">
+                        <input type="hidden" name="title" value="Multiplication Game - larger">
+                        <input type="hidden" name="timer" value="240">
+                        <input type="hidden" name="limitNumbers" value="5,6,7">
+                        <button type="submit" class="link-button">Multiplication Game - 4 minutes - 5-7 numbers</button>
+                    </form>
 
-        <form id="multiplicationFormLimits" action="/multiplication" method="post">
-            <input type="hidden" name="title" value="Multiplication Game - larger">
-            <input type="hidden" name="timer" value="240">
-            <input type="hidden" name="limitNumbers" value="5,6,7,8,9">
-            <button type="submit" class="link-button">Multiplication Game - 4 minutes - 5-9 numbers</button>
-        </form>
-    </div>
-</div>
+                    <form id="multiplicationFormLimits" action="/multiplication" method="post">
+                        <input type="hidden" name="title" value="Multiplication Game - larger">
+                        <input type="hidden" name="timer" value="240">
+                        <input type="hidden" name="limitNumbers" value="5,6,7,8,9">
+                        <button type="submit" class="link-button">Multiplication Game - 4 minutes - 5-9 numbers</button>
+                    </form>
+                </div>
+            </div>
 
-<hr>
+            <hr>
 
-<br><br>
+            <br><br>
 
-<div class="section-div">
-    <div id="title-bar">Fraction Problems</div>
+            <div class="section-div">
+                <div id="title-bar">Fraction Problems</div>
 
-    <div class="section-bottom">
-        <form id="fractionsForm" action="/multiplication_fractions" method="post">
-            <input type="hidden" name="title" value="Fractions Multiplication Game - 1-5">
-            <input type="hidden" name="timer" value="240">
-            <input type="hidden" name="limitNumbers" value="1,2,3,4,5">
-            <button type="submit" class="link-button">Fractions Multiplication Game - 1-5</button>
-        </form>
+                <div class="section-bottom">
+                    <form id="fractionsForm" action="/multiplication_fractions" method="post">
+                        <input type="hidden" name="title" value="Fractions Multiplication Game - 1-5">
+                        <input type="hidden" name="timer" value="240">
+                        <input type="hidden" name="limitNumbers" value="1,2,3,4,5">
+                        <button type="submit" class="link-button">Fractions Multiplication Game - 1-5</button>
+                    </form>
 
-        <form id="fractionsForm" action="/multiplication_fractions" method="post">
-            <input type="hidden" name="title" value="Fractions Multiplication Game">
-            <input type="hidden" name="timer" value="240">
-            <button type="submit" class="link-button">Fractions Multiplication Game</button>
-        </form>
+                    <form id="fractionsForm" action="/multiplication_fractions" method="post">
+                        <input type="hidden" name="title" value="Fractions Multiplication Game">
+                        <input type="hidden" name="timer" value="240">
+                        <button type="submit" class="link-button">Fractions Multiplication Game</button>
+                    </form>
 
-        <!--TODO need to add instructions to problem more-->
-        <form id="fractionsForm" action="/fractions_reducing" method="post">
-            <input type="hidden" name="title" value="Fractions Reducing Game - smaller">
-            <input type="hidden" name="timer" value="240">
-            <input type="hidden" name="limitNumbers" value="1,2,3">
-            <button type="submit" class="link-button">Fractions Reducing Game - smaller</button>
-        </form>
+                    <!--TODO need to add instructions to problem more-->
+                    <form id="fractionsForm" action="/fractions_reducing" method="post">
+                        <input type="hidden" name="title" value="Fractions Reducing Game - smaller">
+                        <input type="hidden" name="timer" value="240">
+                        <input type="hidden" name="limitNumbers" value="1,2,3">
+                        <button type="submit" class="link-button">Fractions Reducing Game - smaller</button>
+                    </form>
 
-        <form id="fractionsForm" action="/fractions_reducing" method="post">
-            <input type="hidden" name="title" value="Fractions Reducing Game - larger">
-            <input type="hidden" name="timer" value="240">
-            <button type="submit" class="link-button">Fractions Reducing Game - larger</button>
-        </form>
+                    <form id="fractionsForm" action="/fractions_reducing" method="post">
+                        <input type="hidden" name="title" value="Fractions Reducing Game - larger">
+                        <input type="hidden" name="timer" value="240">
+                        <button type="submit" class="link-button">Fractions Reducing Game - larger</button>
+                    </form>
 
-        <form id="gcdForm" action="/find_gcd" method="post">
-            <input type="hidden" name="title" value="Find GCD - Smaller">
-            <input type="hidden" name="timer" value="240">
-            <input type="hidden" name="limitNumbers" value="1,2,3,4">
-            <button type="submit" class="link-button">Find GCD - smaller</button>
-        </form>
+                    <form id="gcdForm" action="/find_gcd" method="post">
+                        <input type="hidden" name="title" value="Find GCD - Smaller">
+                        <input type="hidden" name="timer" value="240">
+                        <input type="hidden" name="limitNumbers" value="1,2,3,4">
+                        <button type="submit" class="link-button">Find GCD - smaller</button>
+                    </form>
 
-        <form id="gcdForm" action="/find_gcd" method="post">
-            <input type="hidden" name="title" value="Find GCD - Medium">
-            <input type="hidden" name="timer" value="240">
-            <input type="hidden" name="limitNumbers" value="1,2,3,4,5,6">
-            <button type="submit" class="link-button">Find GCD - medium</button>
-        </form>
+                    <form id="gcdForm" action="/find_gcd" method="post">
+                        <input type="hidden" name="title" value="Find GCD - Medium">
+                        <input type="hidden" name="timer" value="240">
+                        <input type="hidden" name="limitNumbers" value="1,2,3,4,5,6">
+                        <button type="submit" class="link-button">Find GCD - medium</button>
+                    </form>
 
-        <form id="gcdForm" action="/find_gcd" method="post">
-            <input type="hidden" name="title" value="Find GCD - Larger">
-            <input type="hidden" name="timer" value="240">
-            <button type="submit" class="link-button">Find GCD - larger</button>
-        </form>
-    </div>
-</div>
+                    <form id="gcdForm" action="/find_gcd" method="post">
+                        <input type="hidden" name="title" value="Find GCD - Larger">
+                        <input type="hidden" name="timer" value="240">
+                        <button type="submit" class="link-button">Find GCD - larger</button>
+                    </form>
+                </div>
+            </div>
 
+            <br><br>
+        </td>
+        <td>
+
+            <div class="section-div">
+                <div id="title-bar">Spanish Vocabulary</div>
+
+                <div class="section-bottom">
+                    <form id="spanishForm" action="/spanish_numbers_to_english" method="post">
+                        <input type="hidden" name="title" value="Spanish Numbers - Spanish to English">
+                        <input type="hidden" name="timer" value="240">
+                        <button type="submit" class="link-button">Spanish Numbers - Spanish to English</button>
+                    </form>
+
+                    <form id="spanishForm" action="/spanish_numbers_to_spanish" method="post">
+                        <input type="hidden" name="title" value="Spanish Numbers - English to Spanish">
+                        <input type="hidden" name="timer" value="240">
+                        <button type="submit" class="link-button">Spanish Numbers - English to Spanish</button>
+                    </form>
+                </div>
+            </div>
+            <br>
+
+            <br><br>
+
+            <div class="section-div">
+                <div id="title-bar">US States</div>
+
+                <div class="section-bottom">
+                    <form id="USStatesForm" action="/us_states" method="post">
+                        <input type="hidden" name="title" value="US States">
+                        <input type="hidden" name="timer" value="240">
+                        <button type="submit" class="link-button">US States Map Quiz</button>
+                    </form>
+
+                    <!--        todo break this into east west -->
+                    <!--        color code half map not using grey-->
+                    <!--        tag eash state as east or west zone-->
+                    <!--        only ask that set. -->
+                    <!--        / or just pass in list of states?-->
+
+                </div>
+            </div>
+            <br>
+        </td>
+        <td>
+<!--            image of our tutorbot-->
+            <img src="/images/tutorbot.png" alt="TutorBot" style="width: 300px; height: 300px;">
+        </td>
+    </tr>
+</table>
 
 <form id="multiplicationFormLimits" action="/multiplication" method="post">
     <input type="hidden" name="title" value="Multiplication Game - smaller">
@@ -158,7 +213,6 @@
     <input type="hidden" name="limitNumbers" value="1,2,3,4">
     <button type="submit" class="link-button">Test Game - 4 minutes - 1-4 numbers</button>
 </form>
-
 
 
 </body>

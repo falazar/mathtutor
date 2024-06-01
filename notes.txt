@@ -8,14 +8,20 @@ DONE - Math display right here:
 https://jsbin.com/?html,output
 
 ########################################################################
+INDEX -
+Add "working on" sets, marked quizs that each person is working on.
+Maybe with a Goal Grade also, they need to beat.
+
+
+########################################################################
 DEVOPS:
 Hosting, can aonther site host node???
 
 ########################################################################
 CATEGORIES:
-1. Map of the world for countries and continents and such...
+1. DONE - Map of the world for countries and continents and such...
 
-2. Add a non-math category of questions.
+2. DONE - Add a non-math category of questions.
 Lets do some spanish, numbers 1-10 both ways.
 
 3. Cyrus had trouble with coins, can we do a section for that?
@@ -32,7 +38,7 @@ Make the login page look better.
 Add a main css style file.
 
 ########################################################################
-DATA:
+DATA REPORTS:
 Update scores display pages.
 Allow multiple players to be seen.
 Allow manager view.
@@ -48,11 +54,12 @@ Attack a dragon?
 Block removal.
 Puzzle pieces.
 Maze?
+Build - a spaceship with each little part added, and launch...
 
 ########################################################################
 REFACTORS:
-mysql code pull out.
-repeated code in index.js pull out.
+DONE - mysql code pull out.
+DONE - repeated code in index.js pull out.
 
 
 

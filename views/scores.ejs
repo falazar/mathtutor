@@ -16,6 +16,7 @@
             border-radius: 5px;
             border-collapse: collapse; /* Add this line */
         }
+
         /* Add this to style the table cells */
         td, th {
             border: 3px solid black;
@@ -36,21 +37,41 @@
 <%- include('toolbar.ejs') %>
 <div style="clear:both;"></div>
 
-<!--todo break down by category and title later-->
+<!--todo break down by category, title, user later-->
 
 <!--todo show problems that need more work here. -->
 
-<h1>Scores for <%= username %></h1>
+<%
+  function stringToColor(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    let color = '#';
+    for (let i = 0; i < 3; i++) {
+      let value = (hash >> (i * 8)) & 0xFF;
+      color += ('00' + value.toString(16)).substr(-2);
+    }
+    return color;
+  }
+%>
+
+<h1>Recent Scores: </h1>
 <table>
     <tr class="headerClass">
+        <th>User</th>
         <th>Title</th>
         <th>Grade</th>
         <th>Correct Answers</th>
         <th>Incorrect Answers</th>
         <th>Date</th>
     </tr>
-    <% scores.forEach(function(score) { %>
-    <tr>
+    <% scores.forEach(function(score) {
+        // Color row a random color based on whole name.
+        const color = stringToColor(score.username);
+    %>
+    <tr style="background-color: <%= color %>; opacity: 0.5;">
+        <td><%= score.username %></td>
         <td><%= score.title %></td>
         <td class="center-text"><%= score.grade %></td>
         <td class="center-text"><%= score.numQuestionsRight %></td>
