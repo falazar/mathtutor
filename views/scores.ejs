@@ -21,6 +21,7 @@
         td, th {
             border: 3px solid black;
             padding: 3px;
+
         }
 
         .headerClass {
@@ -34,6 +35,8 @@
     </style>
 </head>
 <body>
+
+<link rel="stylesheet" type="text/css" href="toolbar.css">
 <%- include('toolbar.ejs') %>
 <div style="clear:both;"></div>
 
@@ -42,18 +45,31 @@
 <!--todo show problems that need more work here. -->
 
 <%
-  function stringToColor(str) {
+function stringToColor(str) {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
-      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
     }
     let color = '#';
     for (let i = 0; i < 3; i++) {
-      let value = (hash >> (i * 8)) & 0xFF;
-      color += ('00' + value.toString(16)).substr(-2);
+        let value = (hash >> (i * 8)) & 0xFF;
+        color += ('00' + value.toString(16)).substr(-2);
     }
     return color;
-  }
+}
+
+function hexToRgbA(hex){
+    let c;
+    if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+        c= hex.substring(1).split('');
+        if(c.length== 3){
+            c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+        }
+        c= '0x'+c.join('');
+        return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+',0.5)';
+    }
+    throw new Error('Bad Hex');
+}
 %>
 
 <h1>Recent Scores: </h1>
@@ -70,8 +86,10 @@
         // Color row a random color based on whole name.
         const color = stringToColor(score.username);
     %>
-    <tr style="background-color: <%= color %>; opacity: 0.5;">
-        <td><%= score.username %></td>
+<!--    <tr style="background-color: <%= color %>; opacity: 0.5;">-->
+    <tr style="background-color: <%= hexToRgbA(color) %>;">
+
+    <td><%= score.username %></td>
         <td><%= score.title %></td>
         <td class="center-text"><%= score.grade %></td>
         <td class="center-text"><%= score.numQuestionsRight %></td>

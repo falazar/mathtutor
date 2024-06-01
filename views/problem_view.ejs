@@ -24,7 +24,7 @@
             padding-left: 0px; /* Remove left padding */
             background-color: lightblue;
             margin-top: 20px;
-            z-index: 10;
+            z-index: 0;
         }
 
         .card-bottom {
@@ -65,6 +65,7 @@
             margin-top: 0;
         }
 
+        /* START PICKLEMAN ANIMATION*/
         #pickleman {
             position: fixed;
             top: 50%;
@@ -145,6 +146,35 @@
             z-index: -1; /* This will place the div behind all other elements */
         }
 
+        /* START TUTORBOT ANIMATION */
+        #tutorbot {
+            position: fixed;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            z-index: 20;
+        }
+        #tutorbot img {
+            transform: scaleX(-1);
+        }
+        #laser {
+            position: absolute;
+            left: 60px;
+            width: 30px;
+            height: 2px; /* Adjust this value to change the thickness of the laser */
+            background-color: red;
+            z-index: 10;
+        }
+
+        /* START GODZILLA ANIMATION */
+        #godzilla {
+            position: fixed;
+            top: 50%;
+            left: 87%;
+            transform: translateY(-50%);
+            z-index: 20;
+        }
+
     </style>
     <link rel="stylesheet" type="text/css" href="toolbar.css">
 </head>
@@ -178,6 +208,7 @@
                 </strong></h1>
         </form>
         <audio id="yaySound" src="/sounds/yay.mp3" preload="auto"></audio>
+        <audio id="pewSound" src="/sounds/pew1.wav" preload="auto"></audio>
 
         <p id="result"></p>
 
@@ -196,12 +227,21 @@
 
 </div>
 
-<div id="pickleman">
+<div id="pickleman" style="display: none;">
     <img src="/images/pickleball_guy.png" alt="Pickleman" width="200">
 </div>
 
-<div id="ball">
+<div id="ball" style="display: none;">
     <img src="/images/ball.png" alt="Ball" width="40">
+</div>
+
+<div id="tutorbot">
+    <img src="/images/tutorbot.png" alt="tutorbot" width="200">
+</div>
+<div id="laser"></div>
+
+<div id="godzilla">
+    <img src="/images/godzilla.png" alt="godzilla" width="200">
 </div>
 
 <div id="skyDiv"></div>
@@ -299,6 +339,14 @@
       document.getElementById('yaySound').play();
     }
 
+    if (data.result === 'Correct') {
+      // Call the function to shoot the laser
+      // Set a random y value...
+      const targetY = Math.floor(Math.random() * window.innerHeight);
+      // shootLaser(200);
+      shootLaser(targetY);
+    }
+
     // STEP 2: Make another AJAX request to get a new problem.
     $.ajax({
       url: '<%= nextProblemUrl %>',
@@ -362,20 +410,54 @@
     alert('Time is up!');
   }
 
+  function shootLaser(yValue) {
+    document.getElementById('pewSound').play();
+
+    // Get the laser element
+    var laser = document.getElementById('laser');
+
+    // Set the initial y-value of the laser to 500
+    laser.style.top = '400px';
+
+
+    // Create a keyframes rule for the animation
+    var keyframes = `
+        @keyframes laser {
+            0% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(99vw);
+                top: ${yValue}px;
+            }
+        }
+    `;
+
+    // Create a new style element for the animation
+    var style = document.createElement('style');
+    style.innerHTML = keyframes;
+
+    // Append the new style element to the head of the document
+    document.head.appendChild(style);
+
+    // Apply the animation to the laser
+    laser.style.animation = 'laser 2s linear forwards'; /* Adjust the duration (2s) to change the speed of the laser */
+
+    // Add an event listener for the animationend event
+    laser.addEventListener('animationend', function() {
+      // Reset the left property of the laser
+      laser.style.left = '60px'; // hide behind robot,
+
+      // Remove the animation from the laser
+      laser.style.animation = '';
+    });
+  }
 
 </script>
 
 
 <button id="resetButton">Reset Counters</button>
 
-
-<!--<p>-->
-<!--    When \(a \ne 0\), there are two solutions to \(ax^2 + bx + c = 0\) and they are-->
-<!--    \[x = {-b \pm \sqrt{b^2-4ac} \over 2a}.\]-->
-<!--</p>-->
-<!--<p>-->
-<!--    \[{b \over 2a}.\]-->
-<!--</p>-->
 
 
 <script>

@@ -67,12 +67,13 @@
                     <form id="multiplicationForm" action="/multiplication" method="post">
                         <input type="hidden" name="title" value="Multiplication Game">
                         <input type="hidden" name="timer" value="240">
-                        <button type="submit" class="link-button">Multiplication Game - 4 minutes</button>
+                        <button type="submit" class="link-button">Multiplication Game - 4 minutes - all</button>
                     </form>
 
                     <form id="noTimerForm" action="/multiplication" method="post">
                         <input type="hidden" name="title" value="Multiplication Game">
-                        <button type="submit" class="link-button">Multiplication Game - Practice</button>
+                        <input type="hidden" name="limitNumbers" value="1,2,3,4">
+                        <button type="submit" class="link-button">Multiplication Game - Practice easy</button>
                     </form>
 
                     <form id="multiplicationFormLimits" action="/multiplication" method="post">
