@@ -117,7 +117,8 @@ app.post('/multiplication', checkUserSession, function (req, res) {
     problem: `${problem.num1} * ${problem.num2}`,
     answer: problem.answer,
     startTime: Date.now(), // Record the start time
-    counters: req.session.counters || {correct: 0, incorrect: 0, total: 0}, // Use existing counters or initialize if not present
+    counters: {correct: 0, incorrect: 0, total: 0}, // reset
+    logAnswers: [], // reset
   });
 
   const timer = req.body.timer || 0;
@@ -195,7 +196,8 @@ app.post('/multiplication_fractions', checkUserSession, function (req, res) {
     problem: `${problem.num1} * ${problem.num2}`,
     answer: problem.answer,
     startTime: Date.now(), // Record the start time
-    counters: req.session.counters || {correct: 0, incorrect: 0, total: 0} // Use existing counters or initialize if not present
+    counters: {correct: 0, incorrect: 0, total: 0}, // initialize
+    logAnswers: [], // reset
   });
 
   const timer = req.body.timer || 0;
@@ -250,7 +252,8 @@ app.post('/fractions_reducing', checkUserSession, function (req, res) {
     answer: problem.answer,
     explainer: problem.explainer,
     startTime: Date.now(), // Record the start time
-    counters: req.session.counters || {correct: 0, incorrect: 0, total: 0} // Use existing counters or initialize if not present
+    counters: {correct: 0, incorrect: 0, total: 0}, // reset
+    logAnswers: [], // reset
   });
 
   const timer = req.body.timer || 0;
@@ -310,7 +313,8 @@ app.post('/find_gcd', checkUserSession, function (req, res) {
     answer: problem.answer,
     explainer: problem.explainer,
     startTime: Date.now(), // Record the start time
-    counters: req.session.counters || {correct: 0, incorrect: 0, total: 0} // Use existing counters or initialize if not present
+    counters: {correct: 0, incorrect: 0, total: 0}, // reset
+    logAnswers: [], // reset
   });
 
   const timer = req.body.timer || 0;
@@ -362,7 +366,6 @@ app.post('/find_gcd_answer', checkUserSession, function (req, res) {
 // Numbers 1-10 from spanish to english.
 app.post('/spanish_numbers_to_english', checkUserSession, function (req, res) {
   const problem = generateSpanishNumbersToEnglishProblem();
-  console.log("DEBUG: problem = ", problem);
 
   Object.assign(req.session, {
     title: req.body.title,
@@ -370,7 +373,8 @@ app.post('/spanish_numbers_to_english', checkUserSession, function (req, res) {
     answer: problem.answer,
     // could add voice wav as another field here.
     startTime: Date.now(), // Record the start time
-    counters: req.session.counters || {correct: 0, incorrect: 0, total: 0} // Use existing counters or initialize if not present
+    counters: {correct: 0, incorrect: 0, total: 0}, // reset
+    logAnswers: [], // reset
   });
 
   const timer = req.body.timer || 0;
@@ -404,9 +408,6 @@ app.post('/spanish_numbers_to_english_answer', checkUserSession, function (req, 
   const userAnswer = req.body.answer;
   const {result, correctAnswer, grade} = checkAnswerAndUpdateCounters(req, userAnswer);
 
-  console.log("DEBUG: correctAnswer = ", correctAnswer);
-  console.log("DEBUG: userAnswer = ", userAnswer);
-
   res.json({
     oldProblem: req.session.problem,
     result,
@@ -430,7 +431,8 @@ app.post('/spanish_numbers_to_spanish', checkUserSession, function (req, res) {
     answer: problem.answer,
     // could add voice wav as another field here.
     startTime: Date.now(), // Record the start time
-    counters: req.session.counters || {correct: 0, incorrect: 0, total: 0} // Use existing counters or initialize if not present
+    counters: {correct: 0, incorrect: 0, total: 0}, // reset
+    logAnswers: [], // reset
   });
 
   const timer = req.body.timer || 0;
@@ -463,9 +465,6 @@ app.get('/spanish_numbers_to_spanish_next_problem', checkUserSession, function (
 app.post('/spanish_numbers_to_spanish_answer', checkUserSession, function (req, res) {
   const userAnswer = req.body.answer;
   const {result, correctAnswer, grade} = checkAnswerAndUpdateCounters(req, userAnswer);
-
-  console.log("DEBUG: correctAnswer = ", correctAnswer);
-  console.log("DEBUG: userAnswer = ", userAnswer);
 
   res.json({
     oldProblem: req.session.problem,
@@ -516,7 +515,8 @@ app.get('/usa_map', checkUserSession, function (req, res) {
 // MAPS CHAPTER BEGIN.
 // TODO abstract this to handle more things? dunno.
 app.post('/us_states', checkUserSession, function (req, res) {
-  const problem = generateUSStateProblem();
+  const zone = req.body.zone;
+  const problem = generateUSStateProblem(zone);
   console.log("DEBUG: problem = ", problem);
 
   Object.assign(req.session, {
@@ -524,7 +524,10 @@ app.post('/us_states', checkUserSession, function (req, res) {
     problem: problem.problem,
     answer: problem.answer,
     startTime: Date.now(), // Record the start time
-    counters: req.session.counters || {correct: 0, incorrect: 0, total: 0} // Use existing counters or initialize if not present
+    counters: {correct: 0, incorrect: 0, total: 0}, // reset
+    logAnswers: [], // reset
+    zone,
+    options: problem.options,
   });
 
   const timer = req.body.timer || 0;
@@ -536,13 +539,15 @@ app.post('/us_states', checkUserSession, function (req, res) {
     counters: req.session.counters,
     timer,
     answerUrl: '/us_states_answer',
-    nextProblemUrl: '/us_states_next_problem'
+    nextProblemUrl: '/us_states_next_problem',
+    zone,
+    options: problem.options,
   });
 });
 
 // Call to get a new find state problem.
 app.get('/us_states_next_problem', checkUserSession, function (req, res) {
-  const problem = generateUSStateProblem();
+  const problem = generateUSStateProblem(req.session.zone);
 
   Object.assign(req.session, {
     problem: problem.problem,
@@ -558,9 +563,6 @@ app.get('/us_states_next_problem', checkUserSession, function (req, res) {
 app.post('/us_states_answer', checkUserSession, function (req, res) {
   const userAnswer = req.body.answer;
   const {result, correctAnswer, grade} = checkAnswerAndUpdateCounters(req, userAnswer);
-
-  console.log("DEBUG: correctAnswer = ", correctAnswer);
-  console.log("DEBUG: userAnswer = ", userAnswer);
 
   res.json({
     oldProblem: req.session.problem,

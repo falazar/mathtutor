@@ -154,9 +154,11 @@
             transform: translateY(-50%);
             z-index: 20;
         }
+
         #tutorbot img {
             transform: scaleX(-1);
         }
+
         #laser {
             position: absolute;
             left: 60px;
@@ -181,9 +183,6 @@
 <body>
 <%- include('toolbar.ejs') %>
 
-<h1>Welcome <%= username %>, to the TutorBot Game!</h1>
-<br><br>
-
 <div class="card">
     <div class="problem-statement">
         <h2><%= locals.title || '' %></h2>
@@ -200,20 +199,28 @@
         </div>
 
         <form id="answerForm" method="post">
-            <h1><strong>
-                    <span id="problem"><%= problem %> = ?</span>
-                    <input type="text" id="answer" name="answer" required maxlength="15" autofocus
-                           autocomplete="off">
-                    <input id=submit type="submit" value="GO">
-                </strong></h1>
+            <strong><span id="problem" style="font-size: 4em;">
+                    <%= problem %> = ?</span>
+            </strong>
+            <input type="text" id="answer" name="answer" required maxlength="15" autofocus
+                   autocomplete="off">
+            <input id=submit type="submit" value="GO">
         </form>
         <audio id="yaySound" src="/sounds/yay.mp3" preload="auto"></audio>
         <audio id="pewSound" src="/sounds/pew1.wav" preload="auto"></audio>
 
-        <p id="result"></p>
+        <table>
+            <tr>
+                <td style="padding-right: 20px;">
+                    <span id="result"></span>
 
-        <!-- Resay answer to reinforce problem. -->
-        <p id="oldProblem"></p>
+                </td>
+                <td>
+                    <!-- Resay answer to reinforce problem. -->
+                    <span id="oldProblem"></span>
+                </td>
+            </tr>
+        </table>
 
         <p id="explainer"></p>
     </div>
@@ -291,7 +298,6 @@
 
   // Helper method to help with map answers being clicked on.
   function sendAnswer(answer) {
-    console.log("GOT AN ANSWER HERE: " + answer);
     // Insert the answer into the form and submit it.
     $('#answer').val(answer);
     $('#answerForm').submit();
@@ -340,10 +346,9 @@
     }
 
     if (data.result === 'Correct') {
-      // Call the function to shoot the laser
+      // Call the function to shoot the laser.
       // Set a random y value...
       const targetY = Math.floor(Math.random() * window.innerHeight);
-      // shootLaser(200);
       shootLaser(targetY);
     }
 
@@ -444,7 +449,7 @@
     laser.style.animation = 'laser 2s linear forwards'; /* Adjust the duration (2s) to change the speed of the laser */
 
     // Add an event listener for the animationend event
-    laser.addEventListener('animationend', function() {
+    laser.addEventListener('animationend', function () {
       // Reset the left property of the laser
       laser.style.left = '60px'; // hide behind robot,
 
@@ -457,7 +462,6 @@
 
 
 <button id="resetButton">Reset Counters</button>
-
 
 
 <script>
