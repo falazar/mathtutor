@@ -15,14 +15,18 @@ Maybe with a Goal Grade also, they need to beat.
 
 ########################################################################
 DEVOPS:
-Hosting, can aonther site host node???
+Hosting, can another site host node???
 
 ########################################################################
 CATEGORIES:
 1. DONE - Map of the world for countries and continents and such...
+DONE - Usa Map
+- make a study map that shows all names.
+- on answer show right and wrong names on map itself.
+Add Europe map east and west.
 
-2. DONE - Add a non-math category of questions.
-Lets do some spanish, numbers 1-10 both ways.
+2. DONE - Lets do some spanish, numbers 1-10 both ways.
+Add Colors.
 
 3. Cyrus had trouble with coins, can we do a section for that?
 Need to change view to show coins based on problems.

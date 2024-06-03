@@ -44,6 +44,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Set up body parsing middleware.
 const bodyParser = require('body-parser');
+const {generateEuropeCountriesProblem} = require("./src/mapEuropeProblems");
 app.use(bodyParser.urlencoded({extended: true}));
 
 
@@ -63,10 +64,39 @@ const users = {
   'cyrus': {id: 3, password: 'cy1'},
 };
 
-app.get('/', checkUserSession, function (req, res) {
-  res.render('index', {
-    username: req.session.username
+// todo move me if working.
+function queryDatabase(query, params) {
+  return new Promise((resolve, reject) => {
+    db.query(query, params, (err, results) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(results);
+      }
+    });
   });
+}
+
+// General home page with all the lessons showing.
+app.get('/', checkUserSession, async function (req, res) {
+  // Grab some high scores from the db now.
+  const query = `SELECT title, MAX(numQuestionsRight) as numQuestionsRight
+                 FROM problem_sets
+                 WHERE userId = ?
+                   AND grade >= 70
+                 GROUP BY title`;
+  try {
+    const results = await queryDatabase(query, [req.session.userId]);
+    const values = results.map(result => Object.assign({}, result));
+
+    res.render('index', {
+      username: req.session.username,
+      highScores: values
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('An error occurred while querying the database');
+  }
 });
 
 app.get('/login', function (req, res) {
@@ -485,22 +515,26 @@ app.post('/reset', checkUserSession, function (req, res) {
 
 // Show user page to see scores.
 app.get('/scores', checkUserSession, function (req, res) {
-  // const query = 'SELECT * FROM problem_sets WHERE userId = ? ORDER BY datetime DESC';
-  // TODO write this query but join with users table to get username.
-  const query = 'SELECT * FROM problem_sets ' +
-    ' JOIN users ON problem_sets.userId = users.id '+
-    ' ORDER BY datetime DESC';
-
-  // db.query(query, [req.session.userId], (err, results) => {
+  // HARDCODE only show kiddos scores right now.
+  const limitUsers = ["lazarus", "cyrus"];
+  const limitUsersString = limitUsers.map(user => `'${user}'`).join(", ");
+  // have userId use that so no join needed.
+  const query = `SELECT *, (numQuestionsRight * 10 - numQuestionsWrong * 5) as score
+                 FROM problem_sets
+                          JOIN users ON problem_sets.userId = users.id
+                 WHERE users.username IN (${limitUsersString})
+                 ORDER BY datetime DESC LIMIT 100`;
+  let queryResults;
   db.query(query, (err, results) => {
     if (err) {
       throw err;
     }
-    res.render('scores',
-      {
-        username: req.session.username,
-        scores: results
-      });
+    queryResults = results;
+
+    res.render('scores', {
+      username: req.session.username,
+      scores: queryResults
+    });
   });
 });
 
@@ -511,9 +545,16 @@ app.get('/usa_map', checkUserSession, function (req, res) {
       username: req.session.username,
     });
 });
+app.get('/europe_map2', checkUserSession, function (req, res) {
+  res.render('europe_map',
+    {
+      username: req.session.username,
+    });
+});
 
 // MAPS CHAPTER BEGIN.
 // TODO abstract this to handle more things? dunno.
+// UNITED STATES MAP AREA
 app.post('/us_states', checkUserSession, function (req, res) {
   const zone = req.body.zone;
   const problem = generateUSStateProblem(zone);
@@ -561,6 +602,69 @@ app.get('/us_states_next_problem', checkUserSession, function (req, res) {
 
 // Checks answer for state problem.
 app.post('/us_states_answer', checkUserSession, function (req, res) {
+  const userAnswer = req.body.answer;
+  const {result, correctAnswer, grade} = checkAnswerAndUpdateCounters(req, userAnswer);
+
+  res.json({
+    oldProblem: req.session.problem,
+    result,
+    correctAnswer,
+    userAnswer,
+    explainer: req.session.explainer,
+    counters: req.session.counters,
+    grade
+  });
+});
+
+
+// EUROPE MAP AREA
+app.post('/europe_countries', checkUserSession, function (req, res) {
+  const zone = req.body.zone;
+  const problem = generateEuropeCountriesProblem(zone);
+  console.log("DEBUG: problem = ", problem);
+
+  Object.assign(req.session, {
+    title: req.body.title,
+    problem: problem.problem,
+    answer: problem.answer,
+    startTime: Date.now(), // Record the start time
+    counters: {correct: 0, incorrect: 0, total: 0}, // reset
+    logAnswers: [], // reset
+    zone,
+    options: problem.options,
+  });
+
+  const timer = req.body.timer || 0;
+  res.render('problem_view', {
+    username: req.session.username,
+    title: req.body.title,
+    problem: req.session.problem,
+    map: "europe_map.ejs",  // maybe change order of names here. map first?
+    counters: req.session.counters,
+    timer,
+    answerUrl: '/europe_countries_answer',
+    nextProblemUrl: '/europe_countries_next_problem',
+    zone,
+    options: problem.options,
+  });
+});
+
+// Call to get a new find state problem.
+app.get('/europe_countries_next_problem', checkUserSession, function (req, res) {
+  const problem = generateEuropeCountriesProblem(req.session.zone);
+
+  Object.assign(req.session, {
+    problem: problem.problem,
+    answer: problem.answer,
+    startTime: Date.now(), // Record the start time
+  });
+
+  // Return a JSON object with the new problem only.
+  res.json({problem: req.session.problem});
+});
+
+// Checks answer for state problem.
+app.post('/europe_countries_answer', checkUserSession, function (req, res) {
   const userAnswer = req.body.answer;
   const {result, correctAnswer, grade} = checkAnswerAndUpdateCounters(req, userAnswer);
 

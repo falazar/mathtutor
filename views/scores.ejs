@@ -10,7 +10,7 @@
             background-size: cover;
         }
 
-        table {
+        #scoresTable {
             border: 3px solid black;
             border-radius: 5px;
             border-radius: 5px;
@@ -18,7 +18,7 @@
         }
 
         /* Add this to style the table cells */
-        td, th {
+        #scoresTable td, th {
             border: 3px solid black;
             padding: 3px;
 
@@ -32,7 +32,18 @@
             text-align: center;
         }
 
+        .top-score {
+            background-color: green;
+        }
+
+        .bottom-score {
+            background-color: red;
+        }
     </style>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" charset="utf8"
+            src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
 </head>
 <body>
 
@@ -58,45 +69,87 @@ function stringToColor(str) {
     return color;
 }
 
-function hexToRgbA(hex){
+function hexToRgbA(hex) {
     let c;
-    if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
-        c= hex.substring(1).split('');
-        if(c.length== 3){
-            c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+    if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+        c = hex.substring(1).split('');
+        if (c.length == 3) {
+            c = [c[0], c[0], c[1], c[1], c[2], c[2]];
         }
-        c= '0x'+c.join('');
-        return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+',0.5)';
+        c = '0x' + c.join('');
+        return 'rgba(' + [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',') + ',0.5)';
     }
     throw new Error('Bad Hex');
 }
 %>
 
 <h1>Recent Scores: </h1>
-<table>
+<table id="scoresTable" style="width: auto;">
+    <thead>
     <tr class="headerClass">
         <th>User</th>
         <th>Title</th>
+        <th>Score</th>
+        <th>Correct<br>Answers</th>
+        <th>Incorrect<br>Answers</th>
         <th>Grade</th>
-        <th>Correct Answers</th>
-        <th>Incorrect Answers</th>
         <th>Date</th>
     </tr>
+    </thead>
+    <tbody>
     <% scores.forEach(function(score) {
         // Color row a random color based on whole name.
         const color = stringToColor(score.username);
     %>
-<!--    <tr style="background-color: <%= color %>; opacity: 0.5;">-->
     <tr style="background-color: <%= hexToRgbA(color) %>;">
-
-    <td><%= score.username %></td>
+        <td><%= score.username %></td>
         <td><%= score.title %></td>
-        <td class="center-text"><%= score.grade %></td>
+        <td class="center-text"><%= score.score %></td>
         <td class="center-text"><%= score.numQuestionsRight %></td>
         <td class="center-text"><%= score.numQuestionsWrong %></td>
+        <td class="center-text"><%= score.grade %></td>
         <td><%= score.datetime.toLocaleDateString('en-US'); %></td>
     </tr>
     <% }); %>
+    </tbody>
 </table>
+
+<script>
+  // Calculate the top and bottom thresholds for the scores.
+  function calculateThresholds(scores) {
+    scores.sort((a, b) => a - b); // Sort the scores in ascending order
+
+    const topThreshold = scores[Math.floor(scores.length * 0.9)];
+    const bottomThreshold = scores[Math.floor(scores.length * 0.1)];
+
+    return {topThreshold, bottomThreshold};
+  }
+
+  // Setup auto sorting here.
+  $(document).ready(function () {
+      <% let scoreValues = scores.map(score => score.score); %>
+      <% const scoreValuesString = JSON.stringify(scoreValues); %>
+    const scoreValues = <%= scoreValuesString %>
+    const {topThreshold, bottomThreshold} = calculateThresholds(scoreValues);
+
+    $('#scoresTable').DataTable({
+      "order": [[6, "desc"]],
+      "pageLength": 20,
+      "rowCallback": function (row, data, index) {
+        const score = data[2]; // hardcoded row.
+        if (score >= topThreshold) {
+          $('td:eq(2)', row).addClass('top-score');
+        } else if (score <= bottomThreshold) {
+          $('td:eq(2)', row).addClass('bottom-score');
+        }
+
+        var grade = data[5];
+        if (grade < 70) {
+          $('td:eq(5)', row).addClass('bottom-score');
+        }
+      }
+    });
+  });
+</script>
 </body>
 </html>

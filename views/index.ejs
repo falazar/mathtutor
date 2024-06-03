@@ -56,6 +56,25 @@
 <h1>Welcome <%= username %>, to the TutorBot Game!</h1>
 <br>
 
+<%
+function getHighScore(title) {
+  // TODO instead setup a cache here by title, so we don't have to loop through all of them each time.
+
+  console.log("title: " + title);
+    let highScore = 0;
+    console.log("highScores: " + highScores);
+    for (let i = 0; i < highScores.length; i++) {
+      console.log("highScores[i].title: " + highScores[i].title);
+        if (highScores[i].title === title) {
+            highScore = highScores[i].numQuestionsRight;
+            break;
+        }
+    }
+    console.log("highScore: " + highScore);
+    return highScore;
+}
+
+ %>
 <table>
     <tr style="vertical-align: top;">
         <td style="padding-right: 20px;">
@@ -63,15 +82,17 @@
             <div class="section-div">
                 <div id="title-bar">Multiplication Problems</div>
 
+<!--                TODO Add goals for each group. -->
+
                 <div class="section-bottom">
                     <form id="multiplicationForm" action="/multiplication" method="post">
                         <input type="hidden" name="title" value="Multiplication Game">
                         <input type="hidden" name="timer" value="240">
-                        <button type="submit" class="link-button">Multiplication Game - 4 minutes - all</button>
+                        <button type="submit" class="link-button">Multiplication Game - 4 minutes - all </button> Goal: 30 Qs Curr: <%= getHighScore("Multiplication Game"); %> Qs
                     </form>
 
                     <form id="noTimerForm" action="/multiplication" method="post">
-                        <input type="hidden" name="title" value="Multiplication Game">
+                        <input type="hidden" name="title" value="Multiplication Game - no timer">
                         <input type="hidden" name="limitNumbers" value="1,2,3,4">
                         <button type="submit" class="link-button">Multiplication Game - Practice easy</button>
                     </form>
@@ -80,28 +101,32 @@
                         <input type="hidden" name="title" value="Multiplication Game - smaller">
                         <input type="hidden" name="timer" value="240">
                         <input type="hidden" name="limitNumbers" value="1,2,3,4">
-                        <button type="submit" class="link-button">Multiplication Game - 4 minutes - 1-4 numbers</button>
+                        <button type="submit" class="link-button">Multiplication Game - 4 minutes - 1-4 numbers</button> - Goal: 30 qs Curr: <%= getHighScore("Multiplication Game - smaller"); %> Qs
                     </form>
 
                     <form id="multiplicationFormLimits" action="/multiplication" method="post">
-                        <input type="hidden" name="title" value="Multiplication Game - larger">
+                        <input type="hidden" name="title" value="Multiplication Game - medium">
                         <input type="hidden" name="timer" value="240">
                         <input type="hidden" name="limitNumbers" value="5,6,7">
-                        <button type="submit" class="link-button">Multiplication Game - 4 minutes - 5-7 numbers</button>
+                        <button type="submit" class="link-button">Multiplication Game - 4 minutes - 5-7 numbers</button> Curr: <%= getHighScore("Multiplication Game - medium"); %> Qs
                     </form>
 
                     <form id="multiplicationFormLimits" action="/multiplication" method="post">
                         <input type="hidden" name="title" value="Multiplication Game - larger">
                         <input type="hidden" name="timer" value="240">
                         <input type="hidden" name="limitNumbers" value="5,6,7,8,9">
-                        <button type="submit" class="link-button">Multiplication Game - 4 minutes - 5-9 numbers</button>
+                        <button type="submit" class="link-button">Multiplication Game - 4 minutes - 5-9 numbers</button> Curr: <%= getHighScore("Multiplication Game - larger"); %> Qs
                     </form>
                 </div>
             </div>
-
-            <hr>
-
             <br><br>
+
+<!--            todo lock next lessons until previous ones reach a certain goal, define in lesson maybe. -->
+
+<!--            TODO show how many they go right on each of these, SO LONG as it was a passing grade. -->
+<!--            show their high scores-->
+
+<!--            TODO add subtraction and addition -->
 
             <div class="section-div">
                 <div id="title-bar">Fraction Problems</div>
@@ -111,13 +136,13 @@
                         <input type="hidden" name="title" value="Fractions Multiplication Game - 1-5">
                         <input type="hidden" name="timer" value="240">
                         <input type="hidden" name="limitNumbers" value="1,2,3,4,5">
-                        <button type="submit" class="link-button">Fractions Multiplication Game - 1-5</button>
+                        <button type="submit" class="link-button">Fractions Multiplication Game - 1-5</button> Curr: <%= getHighScore("Fractions Multiplication Game - 1-5"); %> Qs
                     </form>
 
                     <form id="fractionsForm" action="/multiplication_fractions" method="post">
                         <input type="hidden" name="title" value="Fractions Multiplication Game">
                         <input type="hidden" name="timer" value="240">
-                        <button type="submit" class="link-button">Fractions Multiplication Game</button>
+                        <button type="submit" class="link-button">Fractions Multiplication Game</button> Curr: <%= getHighScore("Fractions Multiplication Game"); %> Qs
                     </form>
 
                     <!--TODO need to add instructions to problem more-->
@@ -125,38 +150,38 @@
                         <input type="hidden" name="title" value="Fractions Reducing Game - smaller">
                         <input type="hidden" name="timer" value="240">
                         <input type="hidden" name="limitNumbers" value="1,2,3">
-                        <button type="submit" class="link-button">Fractions Reducing Game - smaller</button>
+                        <button type="submit" class="link-button">Fractions Reducing Game - smaller</button> Curr: <%= getHighScore("Fractions Reducing Game - smaller"); %> Qs
                     </form>
 
                     <form id="fractionsForm" action="/fractions_reducing" method="post">
                         <input type="hidden" name="title" value="Fractions Reducing Game - larger">
                         <input type="hidden" name="timer" value="240">
-                        <button type="submit" class="link-button">Fractions Reducing Game - larger</button>
+                        <button type="submit" class="link-button">Fractions Reducing Game - larger</button> Curr: <%= getHighScore("Fractions Reducing Game - larger"); %> Qs
                     </form>
 
                     <form id="gcdForm" action="/find_gcd" method="post">
                         <input type="hidden" name="title" value="Find GCD - Smaller">
                         <input type="hidden" name="timer" value="240">
                         <input type="hidden" name="limitNumbers" value="1,2,3,4">
-                        <button type="submit" class="link-button">Find GCD - smaller</button>
+                        <button type="submit" class="link-button">Find GCD - smaller</button> Curr: <%= getHighScore("Find GCD - Smaller"); %> Qs
                     </form>
 
                     <form id="gcdForm" action="/find_gcd" method="post">
                         <input type="hidden" name="title" value="Find GCD - Medium">
                         <input type="hidden" name="timer" value="240">
                         <input type="hidden" name="limitNumbers" value="1,2,3,4,5,6">
-                        <button type="submit" class="link-button">Find GCD - medium</button>
+                        <button type="submit" class="link-button">Find GCD - medium</button> Curr: <%= getHighScore("Find GCD - Medium"); %> Qs
                     </form>
 
                     <form id="gcdForm" action="/find_gcd" method="post">
                         <input type="hidden" name="title" value="Find GCD - Larger">
                         <input type="hidden" name="timer" value="240">
-                        <button type="submit" class="link-button">Find GCD - larger</button>
+                        <button type="submit" class="link-button">Find GCD - larger</button> Curr: <%= getHighScore("Find GCD - Larger"); %> Qs
                     </form>
                 </div>
             </div>
-
             <br><br>
+
         </td>
         <td>
 
@@ -167,18 +192,16 @@
                     <form id="spanishForm" action="/spanish_numbers_to_english" method="post">
                         <input type="hidden" name="title" value="Spanish Numbers - Spanish to English">
                         <input type="hidden" name="timer" value="240">
-                        <button type="submit" class="link-button">Spanish Numbers - Spanish to English</button>
+                        <button type="submit" class="link-button">Spanish Numbers - Spanish to English</button> Curr: <%= getHighScore("Spanish Numbers - Spanish to English"); %> Qs
                     </form>
 
                     <form id="spanishForm" action="/spanish_numbers_to_spanish" method="post">
                         <input type="hidden" name="title" value="Spanish Numbers - English to Spanish">
                         <input type="hidden" name="timer" value="240">
-                        <button type="submit" class="link-button">Spanish Numbers - English to Spanish</button>
+                        <button type="submit" class="link-button">Spanish Numbers - English to Spanish</button> Curr: <%= getHighScore("Spanish Numbers - English to Spanish"); %> Qs
                     </form>
                 </div>
             </div>
-            <br>
-
             <br><br>
 
             <div class="section-div">
@@ -188,32 +211,55 @@
                     <form id="USStatesForm" action="/us_states" method="post">
                         <input type="hidden" name="title" value="US States">
                         <input type="hidden" name="timer" value="240">
-                        <button type="submit" class="link-button">US States Map Quiz</button>
+                        <button type="submit" class="link-button">US States Map Quiz</button> Curr: <%= getHighScore("US States"); %> Qs
                     </form>
 
                     <form id="USStatesForm" action="/us_states" method="post">
-                        <input type="hidden" name="title" value="US States">
+                        <input type="hidden" name="title" value="US States - west">
                         <input type="hidden" name="timer" value="240">
                         <input type="hidden" name="zone" value="west">
-                        <button type="submit" class="link-button">US States Map Quiz - west half</button>
+                        <button type="submit" class="link-button">US States Map Quiz - west half</button> Curr: <%= getHighScore("US States - west"); %> Qs
                     </form>
 
                     <form id="USStatesForm" action="/us_states" method="post">
-                        <input type="hidden" name="title" value="US States">
+                        <input type="hidden" name="title" value="US States - east">
                         <input type="hidden" name="timer" value="240">
                         <input type="hidden" name="zone" value="east">
-                        <button type="submit" class="link-button">US States Map Quiz - east half</button>
+                        <button type="submit" class="link-button">US States Map Quiz - east half</button> Curr: <%= getHighScore("US States - east"); %> Qs
                     </form>
-
-                    <!--        todo break this into east west -->
-                    <!--        color code half map not using grey-->
-                    <!--        tag eash state as east or west zone-->
-                    <!--        only ask that set. -->
-                    <!--        / or just pass in list of states?-->
 
                 </div>
             </div>
-            <br>
+            <br><br>
+
+            <div class="section-div">
+                <div id="title-bar">Europe Countries</div>
+
+                <div class="section-bottom">
+                    <form id="USStatesForm" action="/europe_countries" method="post">
+                        <input type="hidden" name="title" value="Europe Countries">
+                        <input type="hidden" name="timer" value="240">
+                        <button type="submit" class="link-button">Europe Countries Map Quiz</button> Curr: <%= getHighScore("Europe Countries"); %> Qs
+                    </form>
+
+                    <form id="USStatesForm" action="/europe_countries" method="post">
+                        <input type="hidden" name="title" value="Europe Countries - west">
+                        <input type="hidden" name="timer" value="240">
+                        <input type="hidden" name="zone" value="west">
+                        <button type="submit" class="link-button">Europe Countries Map Quiz - western</button> Curr: <%= getHighScore("Europe Countries - west"); %> Qs
+                    </form>
+
+                    <form id="USStatesForm" action="/europe_countries" method="post">
+                        <input type="hidden" name="title" value="Europe Countries - east">
+                        <input type="hidden" name="timer" value="240">
+                        <input type="hidden" name="zone" value="east">
+                        <button type="submit" class="link-button">Europe Countries Map Quiz - eastern</button> Curr: <%= getHighScore("Europe Countries - east"); %> Qs
+                    </form>
+
+                </div>
+            </div>
+            <br><br>
+
         </td>
         <td>
 <!--            image of our tutorbot-->
