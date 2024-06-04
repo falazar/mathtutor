@@ -680,6 +680,10 @@ app.post('/europe_countries_answer', checkUserSession, function (req, res) {
 });
 
 
+app.get('/maze', function (req, res) {
+  res.render('maze');
+});
+
 app.listen(3000, function () {
   console.log('App is listening on port 3000!');
 });
