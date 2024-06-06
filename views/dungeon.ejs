@@ -3,544 +3,434 @@
 <head>
     <title>Maze</title>
     <style>
-        .maze {
-            position: relative;
-
-            border: 1px solid black;
-            display: flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-            height: 1000px; /* Adjust as needed */
-            width: 1000px; /* Adjust as needed */
+        #dungeonMap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 2400px;
+            height: 1600px;
+            z-index: -1;
         }
 
-        /* Each cell for the maze map. */
-        .maze div {
-            flex-basis: 50px; /* Adjust as needed */
-            height: 50px; /* Adjust as needed */
-            width: 50px; /* Adjust as needed */
-            display: flex;
-            justifyContent: center;
-            alignItems: center;
-            z-index: 1;
-        }
-
-        .shadow {
-            height: 52px;
-            width: 52px;
-            z-index: 5;
-        }
-
-        .path {
-            background-color: white;
-        }
-
-        .wall {
-            background-color: black;
-        }
-
-        .door {
-            background-color: saddlebrown;
-        }
-
-        .opendoor {
-            background-color: #cc966f;
-        }
-
-        .bolteddoor {
-            background-color: #3d1801;
-        }
-
-        .start {
-            background-color: red;
-        }
-
-        .end {
-            background-color: green;
-        }
-
-        .gold {
-            background-color: yellow;
+        #player {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background-color: blue;
             border-radius: 50%;
-            width: 50%;
-            height: 50%;
-            margin: auto;
+            border: 2px solid #031a52;
+            z-index: 2;
         }
-
     </style>
     <script>
       /*
-        * This is a maze game that generates a maze using a depth-first search algorithm.
-        * todo add a bad guy that moves around.
-        *  todo add a score.
-        *  todo add a timer.
-        *   todo add some doors with keys.
-        *    todo change map generation to create rooms, hmmmm.
+      Good dungeon creation here:
+      Copilot:
+      Underground map of a Dungeons and Dragons style dungeon, 30x30 hexes, with cave exits, a river, and buildings with torches
+
        */
+      let player;
+      const playerStartX = 800;
+        const playerStartY = 200;
+
+      // Define the size of the grid
+      const gridWidth = 120;
+      const gridHeight = 80;
+      // 20x20 pixels.
+      const cellSize = 20;
+
+      // Create a 2D array to represent the grid - default open.
+      let grid = Array(gridHeight).fill(null).map(() => Array(gridWidth).fill(1));
+
+      let allowEdit = false;
+      let markBlocker = false;
+
+      let isMouseDown = false;
 
 
-      // Initialize the mazeShadow at the top of your script
-      let mazeShadow;
+      // NOTE: Hardcoded map layout.
+      const gridStr = ["11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111100111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111100000011111111111111111111111111111111",
+        "11111111111111111111111111111111111111111001111001111111111111111111111111111111",
+        "11111111111111111111111111111111111111110011111100111111111111111111111111111111",
+        "11111111111111111111111111111111111111100111111110111111111110000000011111111111",
+        "11111111111111111111111111111111111111001111111110111111111111111111001111111111",
+        "11111111111111111111111111111111111110011111111110011111111111111111101111111111",
+        "11111111111111111111111111111111111000111111111111011111111111111111101111111111",
+        "11111111111111111111111111111111100011111111111111001111100011111111101111111111",
+        "11111111111111111111111111111111001111111111111111001110001111111111001111111111",
+        "11111111111111111111111111111111011111111111111111001100111111000000011111111111",
+        "11111111111111111111111111111111011111111111111111100001111100011111111111111111",
+        "11111111111111111111111111111111001111111111111111111111110001111111111111111111",
+        "11111111111111111111111111111111100111111111111111111111100111111111111111111111",
+        "11111111111111111111111111111111110001111111111111111111001111111111111111111111",
+        "11111111111111111111111111111111111100111111111111111100111111111111111111111111",
+        "11111111111111111111111111111111111110011111111111110001111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111100011111111111111111111111111",
+        "11111111111111111111111111111111111111111111111100001111111111111111111111111111",
+        "11111111111111111111111111111111111111110011111001111111111111111111111111111111",
+        "11111111111111111111111111111111111111111000111011111111111111111111111111111111",
+        "11111111111111111111111111111111111111111110000011111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111",
+        "11111111111111111111111111111111111111111111111111111111111111111111111111111111"]
+      grid = convertStringToGrid(gridStr);
 
-      // Call this when page load ready
+
+      function convertStringToGrid(gridStr) {
+        let grid = [];
+        for (let j = 0; j < gridStr[0].length; j++) {
+          let row = [];
+          for (let i = 0; i < gridStr.length; i++) {
+            row.push(Number(gridStr[i][j]));
+          }
+          grid.push(row);
+        }
+        return grid;
+      }
+
+
+      // Main Game start listener.
       document.addEventListener('DOMContentLoaded', function () {
-        // Generate our maze
-        const mazeWidth = 27;
-        const mazeHeight = 20;
-        document.getElementById('maze').style.width = `${mazeWidth * 50}px`;
-        document.getElementById('maze').style.height = `${mazeHeight * 50}px`;
-        let maze = createMaze(mazeWidth, mazeHeight, 6); // Hardcoded size here.
+        initGame();
+      });
 
+      function initGame() {
         // Create the player
-        let player = document.createElement('div');
-        player.style.width = '80%'; // Set this to a percentage of the cell size
-        player.style.height = '80%'; // Set this to a percentage of the cell size
-        player.style.borderRadius = '50%';
-        player.style.backgroundColor = 'blue';
-
-        // Initialize the mazeShadow with all cells hidden (represented by 1)
-        mazeShadow = Array(mazeHeight).fill(null).map(() => Array(mazeWidth).fill(1));
-
-        displayMaze(maze, mazeShadow, player);
+        player = createPlayer();
 
         // Move the player
         document.addEventListener('keydown', function (event) {
-          checkKeyboardInput(event, player);
+          handleKeyboardInput(event, player);
         });
 
-      }); // onready
-
-      function createMaze(width, height) {
-        // The maze array
-        let maze = Array(height).fill(null).map(() => Array(width).fill(0));
-
-        // The directions array
-        let directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
-
-        // The DFS function
-        function dfs(x, y) {
-          let dir = directions.sort(() => Math.random() - 0.5);
-
-          for (let i = 0; i < dir.length; i++) {
-            let nx = x + dir[i][0] * 2;
-            let ny = y + dir[i][1] * 2;
-
-            if (nx >= 0 && nx < height && ny >= 0 && ny < width && maze[nx][ny] === 0) {
-              maze[x + dir[i][0]][y + dir[i][1]] = 1;
-              maze[nx][ny] = 1;
-              dfs(nx, ny);
-            }
+        // Listen for the mousedown event
+        document.getElementById('dungeonMap').addEventListener('mousedown', function (event) {
+          event.preventDefault(); // Prevent the default behavior
+          isMouseDown = true;
+          if (allowEdit) {
+            markCell(event);
           }
-        }
+        });
 
-        // Start the DFS from the upper-left cell
-        dfs(0, 0);
+        // Listen for the mousemove event
+        document.getElementById('dungeonMap').addEventListener('mousemove', function (event) {
+          if (isMouseDown && allowEdit) {
+            markCell(event);
+          }
+        });
 
+        // Listen for the mouseup event
+        document.addEventListener('mouseup', function () {
+          isMouseDown = false;
+        });
 
-        // Call the function to create the doors
-        createDoors(maze, 5);
-        // Call the function to create the doors thru walls
-        createWallDoors(maze, 5);
+      } // init
 
-        // Randomly place 5 gold coins on the path
-        placeGoldCoins(maze, 5);
+      function createPlayer() {
+        let player = document.getElementById('player');
+        player.innerText = "Jay";
 
-        // Ensure the start and end cell is a path
-        maze[0][0] = 1;
-        // Randomly place the end point on the bottom or right wall, excluding corners
-        if (Math.random() < 0.5) {
-          // Place on bottom wall
-          let randomX = Math.floor(Math.random() * (width - 2)) + 1;
-          maze[height - 1][randomX] = 3;
-        } else {
-          // Place on right wall
-          let randomY = Math.floor(Math.random() * (height - 2)) + 1;
-          maze[randomY][width - 1] = 3;
-        }
+        // Start position.
+        player.style.left = playerStartX + 'px';
+        player.style.top = playerStartY + 'px';
 
-        return maze;
+        return player;
       }
 
-      function createMazeNEW(width, height, numRooms) {
-        // The maze array
-        let maze = Array(height).fill(null).map(() => Array(width).fill(0));
+      function handleKeyboardInput(event, player) {
+        let top = parseInt(player.style.top);
+        let left = parseInt(player.style.left);
 
-        // The directions array
-        let directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
-
-        // The DFS function
-        function dfs(x, y) {
-          let dir = directions.sort(() => Math.random() - 0.5);
-
-          for (let i = 0; i < dir.length; i++) {
-            let nx = x + dir[i][0] * 2;
-            let ny = y + dir[i][1] * 2;
-
-            if (nx >= 0 && nx < height && ny >= 0 && ny < width && maze[nx][ny] === 0) {
-              maze[x + dir[i][0]][y + dir[i][1]] = 1;
-              maze[nx][ny] = 1;
-              dfs(nx, ny);
-            }
-          }
-        }
-
-        // Start the DFS from the upper-left cell
-        dfs(0, 0);
-
-
-        for (let i = 0; i < numRooms; i++) {
-          // Randomly select the top-left corner of the room
-          let roomX = Math.floor(Math.random() * (height - 3)) + 1; // Ensure room isn't on the edge of the maze
-          let roomY = Math.floor(Math.random() * (width - 3)) + 1; // Ensure room isn't on the edge of the maze
-
-          // Randomly determine the size of the room
-          let roomHeight = Math.floor(Math.random() * 3) + 3; // Random number between 3 and 6
-          let roomWidth = Math.floor(Math.random() * 3) + 3; // Random number between 3 and 6
-
-          // Ensure the room doesn't exceed the maze boundaries
-          roomHeight = Math.min(roomHeight, height - roomX - 1);
-          roomWidth = Math.min(roomWidth, width - roomY - 1);
-
-          // Fill the room with walls
-          // fills the inside?
-          for (let x = roomX; x < roomX + roomHeight; x++) {
-            for (let y = roomY; y < roomY + roomWidth; y++) {
-              maze[x][y] = 0;
-            }
-          }
-          // keep inside paths.
-
-          // Randomly select a wall cell and replace it with a door
-          // todo door slightly off. Need to adjust.
-          let doorX = roomX + Math.floor(Math.random() * roomHeight);
-          let doorY = roomY + Math.floor(Math.random() * roomWidth);
-          maze[doorX][doorY] = 2;
-        }
-
-
-        // Ensure the start and end cell is a path
-        maze[0][0] = 1;
-        // Randomly place the end point on the bottom or right wall, excluding corners
-        if (Math.random() < 0.5) {
-          // Place on bottom wall
-          let randomX = Math.floor(Math.random() * (width - 2)) + 1;
-          maze[height - 1][randomX] = 3;
-        } else {
-          // Place on right wall
-          let randomY = Math.floor(Math.random() * (height - 2)) + 1;
-          maze[randomY][width - 1] = 3;
-        }
-
-        return maze;
-      }
-
-      function displayMaze(maze, mazeShadow, player) {
-
-        // Display the maze
-        for (let i = 0; i < maze.length; i++) {
-          for (let j = 0; j < maze[i].length; j++) {
-            let cell = document.createElement('div');
-
-            // Assign an id to the cell
-            cell.id = `${i},${j}`;
-
-            // Assign a class to the cell based on its type
-            if (maze[i][j] === 0) {
-              cell.className = 'wall';
-            } else if (maze[i][j] === 1) {
-              cell.className = 'path';
-            } else if (maze[i][j] === 2) {
-              cell.className = 'door';
-            } else if (maze[i][j] === 3) {
-              cell.className = 'path';
-              cell.className += ' end';
-            } else if (maze[i][j] === 4) {
-              cell.className = 'path';
-
-              // TODO MAKE FUNCTION.
-              // Create a new div for the gold coin
-              let coinDiv = document.createElement('div');
-              coinDiv.className = 'gold';
-              cell.appendChild(coinDiv);
-            }
-
-            // Add a grey shadow overlay to each cell to hide it. This will be removed as the player moves.
-            // cell.style.backgroundColor = 'grey';
-
-            // Mark the start cell
-            if (i === 0 && j === 0) {
-              cell.className += ' start';
-              cell.appendChild(player); // add player to this div.
-              cell.style.backgroundColor = ''; // remove the grey overlay from the start cell
-              mazeShadow[i][j] = 0; // Mark the start cell as visible
-            }
-
-            // Append first then modify a bit after
-            document.getElementById('maze').appendChild(cell);
-
-
-            // Create a shadow cell
-            // todo move this into a shadow div.
-            let shadowCell = document.createElement('div');
-            shadowCell.id = `shadow_${i},${j}`;
-            shadowCell.className = 'shadow';
-            shadowCell.style.backgroundColor = 'grey';
-            shadowCell.style.position = 'absolute'; // Position the shadow cell absolutely
-            // TODO the offsets could change a lot here, and using gridSize too.
-            shadowCell.style.top = `${i * 50 + 27}px`; // Set the top position to match the cell's offsetTop
-            shadowCell.style.left = `${j * 50 + 9}px`; // Set the left position to match the cell's offsetLeft
-            if (mazeShadow[i][j] === 0) {
-              shadowCell.style.display = 'none'; // Hide the shadow cell if the corresponding cell in mazeShadow is 0
-            }
-            // Append the shadow cell to the body instead of the cell
-            document.body.appendChild(shadowCell);
-          }
-        }
-
-        revealNeighbors(0, 0, 3); // Reveal the neighbors of the start cell
-      }
-
-      function checkKeyboardInput(event, player) {
-        // Check if the popup is visible
-        if (document.getElementById('popup')) {
-          return; // If the popup is visible, don't allow movement
-        }
-
-        let playerPos = player.parentNode.id.split(',').map(Number);
-        let nextCell;
+        let newTop = top;
+        let newLeft = left;
 
         switch (event.key) {
           case 'ArrowUp':
-            nextCell = document.getElementById(`${playerPos[0] - 1},${playerPos[1]}`);
+            newTop = top - 10;
+            event.preventDefault();
             break;
           case 'ArrowDown':
-            nextCell = document.getElementById(`${playerPos[0] + 1},${playerPos[1]}`);
+            newTop = top + 10;
+            event.preventDefault();
             break;
           case 'ArrowLeft':
-            nextCell = document.getElementById(`${playerPos[0]},${playerPos[1] - 1}`);
+            newLeft = left - 10;
+            event.preventDefault();
             break;
           case 'ArrowRight':
-            nextCell = document.getElementById(`${playerPos[0]},${playerPos[1] + 1}`);
+            newLeft = left + 10;
+            event.preventDefault();
+            break;
+          case 'm':
+            allowEdit = !allowEdit;
+            markBlocker = true;
+            if (allowEdit) {
+              redrawBlockedCells();
+            } else {
+              printMarkedCells();
+            }
+            break;
+          case '1':
+            markBlocker = !markBlocker;
             break;
         }
 
-        // If allowed, make move here.
-        if (!nextCell) return;
-        if (nextCell.className.includes('path') || nextCell.className.includes('opendoor')) {
-          nextCell.appendChild(player);
-          nextCell.style.backgroundColor = ''; // remove the grey overlay from the next cell
+        // Calculate the new grid position
+        // let newX = Math.floor(newLeft / cellSize);
+        // let newY = Math.floor(newTop / cellSize);
 
-          let viewRange = 2; // Set the view range
-          // Call the function to reveal the neighbors
-          let playerPos = player.parentNode.id.split(',').map(Number);
-          revealNeighbors(playerPos[0], playerPos[1], viewRange);
 
-          // Check if the player has hit a gold coin
-          let goldCoin = nextCell.getElementsByClassName('gold')[0];
-          if (goldCoin) {
-            nextCell.removeChild(goldCoin);
-            // TODO Update the player's score or inventory here
-          }
-
-          // Check if the player has reached the end goal.
-          if (nextCell.className.includes('end') && !nextCell.className.includes('opendoor')) {
-            displayWinMessage();
-          }
-        } else if (nextCell.className === 'door') {
-          // If the player hits a door, display a popup
-          createQuestionPopup(nextCell);
+        // Check if the new position is a blocked cell
+        if (isPlayerColliding(player, newLeft, newTop)) {
+          console.log("Player is colliding with a blocked cell");
+        } else {
+          // If the cell is walkable, update the player's position
+          player.style.top = newTop + 'px';
+          player.style.left = newLeft + 'px';
         }
       }
 
+function isPlayerColliding(player, playerLeft, playerTop) {
+    // Calculate the player's position in the grid
+    // let playerLeft = parseInt(player.style.left);
+    // let playerTop = parseInt(player.style.top);
+    let playerRight = playerLeft + player.offsetWidth;
+    let playerBottom = playerTop + player.offsetHeight;
 
-      // Create the popup for question.
-      function createQuestionPopup(door) {
-        let popup = document.createElement('div');
-        popup.id = 'popup';
-        popup.style.position = 'fixed';
-        popup.style.top = '50%';
-        popup.style.left = '50%';
-        popup.style.transform = 'translate(-50%, -50%)';
-        popup.style.backgroundColor = '#9999ff';
-        popup.style.border = '2px solid black'; // Add a dark black border
-        popup.style.padding = '100px';
-        popup.style.zIndex = '1000'; // Ensure the popup is on top of other elements
+    // Calculate the grid coordinates of the player's corners
+    let topLeft = { x: Math.floor(playerLeft / cellSize), y: Math.floor(playerTop / cellSize) };
+    let topRight = { x: Math.floor(playerRight / cellSize), y: Math.floor(playerTop / cellSize) };
+    let bottomLeft = { x: Math.floor(playerLeft / cellSize), y: Math.floor(playerBottom / cellSize) };
+    let bottomRight = { x: Math.floor(playerRight / cellSize), y: Math.floor(playerBottom / cellSize) };
 
-        let question = generateMultiplicationQuestion();
-        let label = document.createElement('label');
-        label.textContent = `What is ${question.num1} * ${question.num2}?  `;
+    // Check if any of the corners are in a blocked cell
+    if (!isCellWalkable(topLeft.x, topLeft.y) || !isCellWalkable(topRight.x, topRight.y) ||
+        !isCellWalkable(bottomLeft.x, bottomLeft.y) || !isCellWalkable(bottomRight.x, bottomRight.y)) {
+        return true;
+    }
 
-        let input = document.createElement('input');
-        input.id = 'answer';
-        input.type = 'number';
-        input.name = 'answer';
-        input.size = 3;
-        input.style.width = '50px'; // Set the width to fit 3 characters
-        input.autocomplete = 'off'
-        input.required = true;
+    return false;
+}
 
-        let form = document.createElement('form');
+      // Function to mark a cell
+      function markCell(event) {
+        let x = Math.floor(event.clientX / cellSize);
+        let y = Math.floor(event.clientY / cellSize);
+        if (markBlocker) {
+          markCellAsBlocked(x, y);
+        } else {
+          markCellAsWalkable(x, y);
+        }
+      }
 
-        let submit = document.createElement('input');
-        submit.type = 'submit';
-        submit.value = 'Submit';
+      // Function to mark a cell as walkable
+      function markCellAsWalkable(x, y) {
+        // todo invert
+        if (x >= 0 && x < gridHeight && y >= 0 && y < gridWidth) {
+          grid[x][y] = 1;
 
-        form.onsubmit = function (event) {
-          event.preventDefault(); // Prevent the form from being submitted
-
-          // Check if the answer is correct
-          if (parseInt(input.value) === question.product) {
-            // Unlock the door
-            door.className = 'opendoor';
+          // Get the blocked cell div
+          let blockedCell = document.getElementById('blockedCell_' + x + '_' + y);
+          // If the blocked cell div exists, remove it
+          if (blockedCell) {
+            document.body.removeChild(blockedCell);
           } else {
-            // bolt the door forever, turn darkbrown.
-            door.className = 'bolteddoor';
+            console.log("DEBUG: No blocked cell found at " + x + " " + y);
           }
-
-          // Remove the popup
-          let popup = document.getElementById('popup');
-          if (popup) {
-            document.body.removeChild(popup);
-          }
-        };
-
-        form.appendChild(label);
-        form.appendChild(input);
-        form.appendChild(submit);
-        popup.appendChild(form);
-        document.body.appendChild(popup);
-        document.getElementById("answer").focus();
-      }
-
-      function generateMultiplicationQuestion() {
-        let num1 = Math.floor(Math.random() * 8) + 2; // Generate a random number between 2 and 9
-        let num2 = Math.floor(Math.random() * 8) + 2; // Generate a random number between 2 and 9
-        let product = num1 * num2;
-
-        return {
-          num1: num1,
-          num2: num2,
-          product: product
-        };
-      }
-
-
-      // Create doors in the maze
-      function createDoors(maze, numDoors) {
-        // Add doors at random path spots
-        let pathCells = [];
-        for (let i = 0; i < maze.length; i++) {
-          for (let j = 0; j < maze[i].length; j++) {
-            if (maze[i][j] === 1) {
-              pathCells.push([i, j]);
-            }
-          }
-        }
-
-        for (let i = 0; i < numDoors; i++) {
-          let randomIndex = Math.floor(Math.random() * pathCells.length);
-          let doorCell = pathCells.splice(randomIndex, 1)[0];
-          maze[doorCell[0]][doorCell[1]] = 2; // Mark the cell as a door
         }
       }
 
-      // Create doors thru walls now.
-      function createWallDoors(maze, numDoors) {
-        // After the maze is created
-        let wallCells = [];
-        for (let i = 0; i < maze.length; i++) {
-          for (let j = 0; j < maze[i].length; j++) {
-            if (maze[i][j] === 0) {
-              wallCells.push([i, j]);
-            }
-          }
-        }
+      // Function to mark a cell as blocked.
+      function markCellAsBlocked(x, y) {
+        // todo invert
+        if (x >= 0 && x < gridHeight && y >= 0 && y < gridWidth) {
+          grid[x][y] = 0;
 
-        for (let i = 0; i < numDoors; i++) {
-          let randomIndex = Math.floor(Math.random() * wallCells.length);
-          let cell = wallCells.splice(randomIndex, 1)[0];
-          // Change the cell to a door
-          maze[cell[0]][cell[1]] = 2; // Mark the cell as a door
+          // Create a new div element
+          let blockedCell = document.createElement('div');
+          blockedCell.id = 'blockedCell_' + x + '_' + y;
+
+          // Set the position, size, and color of the div
+          blockedCell.style.position = 'absolute';
+          blockedCell.style.left = (x * cellSize) + 'px';
+          blockedCell.style.top = (y * cellSize) + 'px';
+          blockedCell.style.width = cellSize + 'px';
+          blockedCell.style.height = cellSize + 'px';
+          blockedCell.style.backgroundColor = 'transparent';
+          blockedCell.style.border = '1px solid red';
+
+          // Ignore mouse events on the blocked cell
+          blockedCell.style.pointerEvents = 'none';
+
+          // Append child to main body.
+          document.body.appendChild(blockedCell);
         }
       }
 
-      // Recursive Unhide near areas of map.
-      function revealNeighbors(x, y, viewRange) {
-        if (viewRange === 0) return; // Stop revealing if the range is 0
+      // Function to check if a cell is walkable
+      function isCellWalkable(x, y) {
+        return x >= 0 && x < gridHeight && y >= 0 && y < gridWidth && grid[x][y] === 1;
+      }
 
-        // Remove the grey shadow overlay from the neighboring cells.
-        // todo could just get nums instead of elements, we arent useing them.
-        const neighbors = [
-          document.getElementById(`shadow_${x - 1},${y}`),
-          document.getElementById(`shadow_${x + 1},${y}`),
-          document.getElementById(`shadow_${x},${y - 1}`),
-          document.getElementById(`shadow_${x},${y + 1}`)
-        ];
-        for (let neighbor of neighbors) {
-          if (neighbor) {
-            // neighbor.style.backgroundColor = '';
+      function redrawBlockedCells() {
+        // Remove all existing blocked cells
+        let blockedCells = document.querySelectorAll('[id^="blockedCell_"]');
+        blockedCells.forEach(function (blockedCell) {
+          blockedCell.parentNode.removeChild(blockedCell);
+        });
 
-            // Reveal the shadow cell
-            // let shadowCell = neighbor.getElementsByClassName('shadow')[0];
-            neighbor.style.display = 'none';
+        // Redraw all blocked cells
+        for (let i = 0; i < gridHeight; i++) {
+          for (let j = 0; j < gridWidth; j++) {
+            if (grid[i][j] === 0) {
+              console.log("DEBUG: adding grid ", grid[i][j] + " at " + i + " " + j);
+              let blockedCell = document.createElement('div');
+              blockedCell.id = 'blockedCell_' + i + '_' + j;
 
-            // Update the mazeShadow
-            const pos = neighbor.id.split('_')[1].split(',').map(Number);
-            const j = pos[0];
-            const k = pos[1];
-            mazeShadow[j][k] = 0;
+              // TODO move styles up out.
+              // Set the position, size, and color of the div
+              blockedCell.style.position = 'absolute';
+              blockedCell.style.left = (i * cellSize) + 'px';
+              blockedCell.style.top = (j * cellSize) + 'px';
+              blockedCell.style.width = cellSize + 'px';
+              blockedCell.style.height = cellSize + 'px';
+              blockedCell.style.border = '1px solid red';
+              blockedCell.style.backgroundColor = 'transparent';
 
-            const cell = document.getElementById(`${j},${k}`);
-            // If the cell is a path or an open door, reveal its neighbors.
-            if (cell.className.includes('path') || cell.className.includes('opendoor')) {
-              revealNeighbors(j, k, viewRange - 1); // Decrease the range by 1
+              // Ignore mouse events on the blocked cell
+              blockedCell.style.pointerEvents = 'none';
+
+              // Append the blocked cell to the dungeonMap
+              document.body.appendChild(blockedCell);
             }
           }
         }
       }
 
-      function displayWinMessage() {
-        // Create a new div for the win message
-        let winMessage = document.createElement('div');
-        winMessage.textContent = 'You Win!';
-        winMessage.style.position = 'fixed'; // Change to 'fixed' to center it relative to the window
-        winMessage.style.top = '50%';
-        winMessage.style.left = '50%';
-        winMessage.style.transform = 'translate(-50%, -50%)';
-        winMessage.style.fontSize = '100px'; // Increase the font size
-        winMessage.style.color = 'green';
-        winMessage.style.textAlign = 'center'; // Center the text
-        winMessage.style.zIndex = '1000'; // Ensure the message is on top of other elements
-
-        // Append the win message to the body
-        document.body.appendChild(winMessage);
-      }
-
-      function placeGoldCoins(maze, numCoins) {
-        // todo make function.
-        let pathCells = [];
-        for (let i = 0; i < maze.length; i++) {
-          for (let j = 0; j < maze[i].length; j++) {
-            if (maze[i][j] === 1) {
-              pathCells.push([i, j]);
-            }
+      // NOTE inverted to allow pretty visible.
+      function printMarkedCells() {
+        let output = '[';
+        for (let j = 0; j < gridWidth; j++) {
+          output += '"';
+          for (let i = 0; i < gridHeight; i++) {
+            output += grid[i][j];
+          }
+          output += '"';
+          if (j < gridWidth - 1) {
+            output += ',\n';
           }
         }
-
-        for (let i = 0; i < numCoins; i++) {
-          let randomIndex = Math.floor(Math.random() * pathCells.length);
-          let coinCell = pathCells.splice(randomIndex, 1)[0];
-          maze[coinCell[0]][coinCell[1]] = 4; // Mark the cell as a gold coin
-        }
+        output += ']';
+        console.log(output);
       }
 
     </script>
 </head>
 <body>
-MAZER.
+DUNGEON.
+
+<div id="player"></div>
 
 
-<div id=maze class="maze">
+<div id="dungeonMap">
+    <img src="/images/dungeon.png" alt="Dungeon" style="width: 2400px; height: 1600px;">
 </div>
+
 </body>
 </html>
