@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="3ff17b53-81b7-48fa-8042-c8c728395c22" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/views/dungeon.ejs" beforeDir="false" afterPath="$PROJECT_DIR$/views/dungeon.ejs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -76,7 +75,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1715982823058</updated>
-      <workItem from="1715982824183" duration="131882000" />
+      <workItem from="1715982824183" duration="132860000" />
     </task>
     <servers />
   </component>

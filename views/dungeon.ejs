@@ -31,7 +31,7 @@
        */
       let player;
       const playerStartX = 800;
-        const playerStartY = 200;
+      const playerStartY = 200;
 
       // Define the size of the grid
       const gridWidth = 120;
@@ -286,32 +286,32 @@
         }
       }
 
-function isPlayerColliding(player, playerLeft, playerTop) {
-    // Calculate the player's position in the grid
-    // let playerLeft = parseInt(player.style.left);
-    // let playerTop = parseInt(player.style.top);
-    let playerRight = playerLeft + player.offsetWidth;
-    let playerBottom = playerTop + player.offsetHeight;
+      function isPlayerColliding(player, playerLeft, playerTop) {
+        // Calculate the player's position in the grid
+        // let playerLeft = parseInt(player.style.left);
+        // let playerTop = parseInt(player.style.top);
+        let playerRight = playerLeft + player.offsetWidth;
+        let playerBottom = playerTop + player.offsetHeight;
 
-    // Calculate the grid coordinates of the player's corners
-    let topLeft = { x: Math.floor(playerLeft / cellSize), y: Math.floor(playerTop / cellSize) };
-    let topRight = { x: Math.floor(playerRight / cellSize), y: Math.floor(playerTop / cellSize) };
-    let bottomLeft = { x: Math.floor(playerLeft / cellSize), y: Math.floor(playerBottom / cellSize) };
-    let bottomRight = { x: Math.floor(playerRight / cellSize), y: Math.floor(playerBottom / cellSize) };
+        // Calculate the grid coordinates of the player's corners
+        let topLeft = {x: Math.floor(playerLeft / cellSize), y: Math.floor(playerTop / cellSize)};
+        let topRight = {x: Math.floor(playerRight / cellSize), y: Math.floor(playerTop / cellSize)};
+        let bottomLeft = {x: Math.floor(playerLeft / cellSize), y: Math.floor(playerBottom / cellSize)};
+        let bottomRight = {x: Math.floor(playerRight / cellSize), y: Math.floor(playerBottom / cellSize)};
 
-    // Check if any of the corners are in a blocked cell
-    if (!isCellWalkable(topLeft.x, topLeft.y) || !isCellWalkable(topRight.x, topRight.y) ||
-        !isCellWalkable(bottomLeft.x, bottomLeft.y) || !isCellWalkable(bottomRight.x, bottomRight.y)) {
-        return true;
-    }
+        // Check if any of the corners are in a blocked cell
+        if (!isCellWalkable(topLeft.x, topLeft.y) || !isCellWalkable(topRight.x, topRight.y) ||
+          !isCellWalkable(bottomLeft.x, bottomLeft.y) || !isCellWalkable(bottomRight.x, bottomRight.y)) {
+          return true;
+        }
 
-    return false;
-}
+        return false;
+      }
 
       // Function to mark a cell
       function markCell(event) {
-        let x = Math.floor(event.clientX / cellSize);
-        let y = Math.floor(event.clientY / cellSize);
+        let x = Math.floor((event.clientX + window.scrollX) / cellSize);
+        let y = Math.floor((event.clientY + window.scrollY) / cellSize);
         if (markBlocker) {
           markCellAsBlocked(x, y);
         } else {
