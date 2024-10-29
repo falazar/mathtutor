@@ -5,7 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3ff17b53-81b7-48fa-8042-c8c728395c22" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/scripts/example.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/scripts/test_news.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/views/dungeon.ejs" beforeDir="false" afterPath="$PROJECT_DIR$/views/dungeon.ejs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -44,7 +48,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/james.ratcliff/IdeaProjects/mathtutor/public/images&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/james.ratcliff/IdeaProjects/dungeonheroes&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -78,7 +82,24 @@
       <workItem from="1715982824183" duration="135866000" />
       <workItem from="1717715724499" duration="1029000" />
       <workItem from="1717774816779" duration="920000" />
-      <workItem from="1718034291630" duration="4728000" />
+      <workItem from="1718034291630" duration="7066000" />
+      <workItem from="1718204713063" duration="2305000" />
+      <workItem from="1718655705048" duration="738000" />
+      <workItem from="1718890907474" duration="2255000" />
+      <workItem from="1718999603628" duration="703000" />
+      <workItem from="1720477953131" duration="582000" />
+      <workItem from="1720622798229" duration="1138000" />
+      <workItem from="1720723721564" duration="1142000" />
+      <workItem from="1721051882837" duration="566000" />
+      <workItem from="1721137320320" duration="527000" />
+      <workItem from="1721230344108" duration="555000" />
+      <workItem from="1721235408258" duration="7151000" />
+      <workItem from="1722008109250" duration="545000" />
+      <workItem from="1723653472239" duration="537000" />
+      <workItem from="1724430472456" duration="681000" />
+      <workItem from="1724431329655" duration="60000" />
+      <workItem from="1724431950063" duration="570000" />
+      <workItem from="1724433802500" duration="558000" />
     </task>
     <servers />
   </component>
