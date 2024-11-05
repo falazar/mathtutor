@@ -688,8 +688,9 @@ app.get('/dungeon', function (req, res) {
   res.render('dungeon');
 });
 
-app.listen(3000, function () {
-  console.log('App is listening on port 3000!');
+const appPort = 3001
+app.listen(3001, function () {
+  console.log(`App is listening on port ${appPort}`);
 });
 
 
